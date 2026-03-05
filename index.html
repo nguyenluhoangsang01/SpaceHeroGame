@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KIẾN THỨC TỔNG HỢP</title>
+    <link
+      rel="icon"
+      href="https://image2url.com/r2/default/images/1771649817034-3b169dea-c56d-453d-b42c-735cafe83a2a.png"
+      type="image/png"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link rel="stylesheet" href="styles/main.css" />
+  </head>
+
+  <body>
+    <div id="start-screen" class="ui-screen">
+      <div class="ui-content">
+        <h1 class="ui-title glow-title">SPACE HERO</h1>
+        <div class="guide-box radar-panel">
+          <h3 class="guide-header">📖 HƯỚNG DẪN CÁCH CHƠI</h3>
+          <p>
+            <strong>1. Mục tiêu:</strong> Hoàn thành tất cả câu hỏi trắc nghiệm.
+          </p>
+          <p>
+            <strong>2. Điều khiển:</strong> Sử dụng các phím
+            <span class="mech-key">W</span><span class="mech-key">A</span
+            ><span class="mech-key">S</span><span class="mech-key">D</span> hoặc
+            phím mũi tên.
+          </p>
+          <p>
+            <strong>3. Nhiệm vụ:</strong><br />
+            • Chạm vào <strong>Viên Ngọc Đỏ</strong> để trả lời câu hỏi.<br />
+            • Tránh né <strong>Mưa Thiên Thạch</strong>.<br />
+            • Thu thập vật phẩm hỗ trợ: ❤️ (Máu), 🛡️ (Khiên), 🧲 (Nam châm), 💣
+            (Bom).
+          </p>
+          <p>
+            <strong>4. Tiến hóa:</strong><br />
+            • Trả lời đúng các câu hỏi của <strong>BOSS</strong> để nhận Nội Tại
+            & nâng cấp phi thuyền!
+          </p>
+        </div>
+      </div>
+      <div id="level-selection-container" class="level-container"></div>
+    </div>
+
+    <div id="countdown-screen" class="ui-screen" style="display: none">
+      <div id="countdown-text">5</div>
+      <div id="loading-msg" class="loading-reveal-text">
+        Chuẩn bị tiến vào không gian...
+      </div>
+    </div>
+
+    <div id="game-over-screen" class="ui-screen" style="display: none">
+      <h1 class="ui-title text-danger-title">THẤT BẠI</h1>
+      <p id="end-score" class="end-score-text">Điểm số: 0</p>
+      <button class="ui-btn btn-danger" onclick="location.reload()">
+        CHƠI LẠI
+      </button>
+    </div>
+
+    <div id="win-screen" class="ui-screen" style="display: none">
+      <div class="win-banner">🏆</div>
+      <h1 class="ui-title">XUẤT SẮC!</h1>
+      <p class="win-text-subtitle">
+        <b class="text-white">Xin chúc mừng</b>, bạn đã hoàn thành.
+      </p>
+      <p class="win-score-box">
+        Điểm số: <span class="stat-highlight" id="win-score-display">0/0</span>
+      </p>
+      <button
+        class="ui-btn pulse-btn btn-win-large"
+        onclick="location.reload()"
+      >
+        CHƠI LẠI VÀ THỬ THÁCH
+      </button>
+    </div>
+
+    <div id="set-title-display" style="display: none">
+      <span id="set-title-text">KIẾN THỨC TỔNG HỢP - PHẦN ...</span>
+    </div>
+
+    <div id="skills-row" style="display: none">
+      <div class="skills-header">🌟 NỘI TẠI ĐÃ MỞ:</div>
+      <div id="skills-list"></div>
+    </div>
+
+    <div id="hud-container" style="display: none">
+      <div class="hud-row">
+        <div class="hud-box score-box">
+          💎 ĐIỂM: <span id="score" class="hud-txt-white">0</span>/<span
+            id="total-questions-display"
+            >45</span
+          >
+        </div>
+        <div class="hud-box" id="health-display">
+          ❤️ MÁU: <span id="hp" class="hud-txt-white">❤️❤️❤️❤️❤️❤️❤️</span>
+        </div>
+        <div class="hud-box timer-box">
+          ⏱️ Thời gian còn lại:
+          <span id="time-remaining" class="hud-txt-white">15:00</span>
+        </div>
+      </div>
+      <div class="hud-row">
+        <div class="hud-box" id="streak-box">
+          🔥 CHUỖI: <span id="streak" class="hud-txt-white">0</span>
+        </div>
+        <div class="hud-box" id="level-display">
+          ⚡ CẤP: <span id="level" class="hud-txt-white">0</span>
+        </div>
+        <div class="hud-box" id="buff-status" style="display: none">
+          ⚡ <span id="buff-text">BUFF</span>:
+          <span id="buff-timer" class="hud-txt-timer">0s</span>
+        </div>
+        <div class="hud-box" id="shield-status" style="display: none">
+          🛡️ KHIÊN: <span id="shield-timer" class="hud-txt-white">0s</span>
+        </div>
+      </div>
+      <div id="pause-btn-hud" onclick="togglePause()" title="Tạm dừng [P]">
+        <svg viewBox="0 0 24 24">
+          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+        </svg>
+      </div>
+    </div>
+
+    <div id="boss-warning">
+      ⚠️ CẢNH BÁO<br /><span class="boss-warning-txt">BOSS SẮP ĐẾN!</span>
+    </div>
+
+    <div id="progress-container" style="display: none">
+      <div id="progress-fill"></div>
+      <div id="boss-markers"></div>
+    </div>
+
+    <div id="feedback-modal"></div>
+    <div id="overlay" style="display: none"></div>
+
+    <div id="custom-alert" class="ui-screen" style="display: none">
+      <div class="alert-box">
+        <h2 class="alert-title">⚠️ LƯU Ý</h2>
+        <p id="custom-alert-msg"></p>
+        <button
+          class="ui-btn btn-alert"
+          onclick="
+            document.getElementById('custom-alert').style.display = 'none'
+          "
+        >
+          ĐÃ HIỂU
+        </button>
+      </div>
+    </div>
+
+    <div id="quiz-modal" style="display: none">
+      <span id="close-modal-btn" onclick="closeModal()">[ESC]</span>
+      <div id="question-title">CÂU HỎI</div>
+      <h3 id="question-text">Loading...</h3>
+      <img
+        id="question-image"
+        src=""
+        alt="Hình minh họa"
+        onclick="openZoom()"
+      />
+      <div id="hotspot-container" style="display: none">
+        <img id="hotspot-image" src="" alt="Hotspot" />
+      </div>
+      <video id="question-video" autoplay muted preload="metadata">
+        Trình duyệt của bạn không hỗ trợ thẻ video.
+      </video>
+      <div id="options-container"></div>
+      <button id="confirm-btn">CHỐT ĐÁP ÁN</button>
+    </div>
+
+    <div id="image-zoom-overlay" style="display: none" onclick="closeZoom()">
+      <img id="zoomed-image" src="" alt="Zoomed" />
+    </div>
+
+    <div id="pause-screen" class="ui-screen" style="display: none">
+      <div id="resume-btn-huge" onclick="togglePause()" title="Tiếp tục [P]">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+      </div>
+    </div>
+
+    <div id="help-btn" onclick="openHelpModal()">❓</div>
+
+    <div id="help-modal" class="ui-screen" style="display: none">
+      <div class="ui-content radar-panel help-box">
+        <span class="help-close" onclick="closeHelpModal()">[ESC]</span>
+        <h2 class="help-header">⌨️ BẢNG PHÍM TẮT</h2>
+
+        <div class="help-content shortcut-grid">
+          <div class="shortcut-group">
+            <h3 class="shortcut-title">🚀 ĐIỀU KHIỂN TÀU</h3>
+            <div class="shortcut-item">
+              <span class="mech-key">W</span><span class="mech-key">A</span
+              ><span class="mech-key">S</span><span class="mech-key">D</span>
+              <span>hoặc <b>Phím mũi tên:</b> Di chuyển</span>
+            </div>
+          </div>
+
+          <div class="shortcut-group">
+            <h3 class="shortcut-title">🎮 HỆ THỐNG GAME</h3>
+            <div class="shortcut-item">
+              <span class="mech-key">P</span>
+              <span>Tạm dừng / Tiếp tục game</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="mech-key">H</span>
+              <span>Bật / Tắt bảng hướng dẫn này</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="mech-key">ESC</span>
+              <span>Đóng các bảng hộp thoại tự động / Thoát toàn màn hình</span>
+            </div>
+          </div>
+
+          <div class="shortcut-group" style="border-left-color: #ff4757">
+            <h3 class="shortcut-title" style="color: #ff4757">
+              ✍️ KHI CÓ CÂU HỎI
+            </h3>
+            <div class="shortcut-item">
+              <span class="mech-key">1</span> <span>đến</span>
+              <span class="mech-key">6</span> <span>: Chọn nhanh đáp án</span>
+            </div>
+            <div class="shortcut-item">
+              <span class="mech-key">Enter</span>
+              <span>: Chốt đáp án / Đóng thông báo lỗi</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="scripts/config.js"></script>
+    <script src="scripts/questions.js"></script>
+    <script src="scripts/game.js"></script>
+    <script src="scripts/ui.js"></script>
+  </body>
+</html>
