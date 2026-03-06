@@ -1,5 +1,5 @@
 const GAME_CONFIG = {
-  player: { initialHp: 0, speed: 450, scale: 2.0 },
+  player: { initialHp: 7, speed: 450, scale: 2.0 },
   game: {
     totalQuestions: 45,
     meteorStormTriggers: [],
