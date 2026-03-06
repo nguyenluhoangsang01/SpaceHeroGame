@@ -16,34 +16,46 @@
 
   <body>
     <div id="start-screen" class="ui-screen">
-      <div class="ui-content">
-        <h1 class="ui-title glow-title">SPACE HERO</h1>
-        <div class="guide-box radar-panel">
-          <h3 class="guide-header">📖 HƯỚNG DẪN CÁCH CHƠI</h3>
-          <p>
-            <strong>1. Mục tiêu:</strong> Hoàn thành tất cả câu hỏi trắc nghiệm.
-          </p>
-          <p>
-            <strong>2. Điều khiển:</strong> Sử dụng các phím
-            <span class="mech-key">W</span><span class="mech-key">A</span
-            ><span class="mech-key">S</span><span class="mech-key">D</span> hoặc
-            phím mũi tên.
-          </p>
-          <p>
-            <strong>3. Nhiệm vụ:</strong><br />
-            • Chạm vào <strong>Viên Ngọc Đỏ</strong> để trả lời câu hỏi.<br />
-            • Tránh né <strong>Mưa Thiên Thạch</strong>.<br />
-            • Thu thập vật phẩm hỗ trợ: ❤️ (Máu), 🛡️ (Khiên), 🧲 (Nam châm), 💣
-            (Bom).
-          </p>
-          <p>
-            <strong>4. Tiến hóa:</strong><br />
-            • Trả lời đúng các câu hỏi của <strong>BOSS</strong> để nhận Nội Tại
-            & nâng cấp phi thuyền!
-          </p>
+      <div id="intro-step-1" class="ui-content" style="max-width: 100%">
+        <h1 class="ui-title glow-title mega-title">SPACE HERO GAME</h1>
+        <p class="press-start">
+          Nhấn <span class="mech-key">ENTER</span> để bắt đầu...
+        </p>
+      </div>
+
+      <div id="intro-step-2" style="display: none; width: 100%">
+        <div class="ui-content" style="margin: 0 auto; max-width: 850px">
+          <div class="guide-box radar-panel">
+            <h3 class="guide-header">📖 HƯỚNG DẪN CÁCH CHƠI</h3>
+            <p>
+              <strong>1. Mục tiêu:</strong> Hoàn thành tất cả câu hỏi trắc
+              nghiệm.
+            </p>
+            <p>
+              <strong>2. Điều khiển:</strong> Sử dụng các phím
+              <span class="mech-key">W</span><span class="mech-key">A</span
+              ><span class="mech-key">S</span
+              ><span class="mech-key">D</span> hoặc
+              <span class="mech-key">↑</span><span class="mech-key">↓</span
+              ><span class="mech-key">←</span><span class="mech-key">→</span>
+            </p>
+            <p>
+              <strong>3. Nhiệm vụ:</strong><br />
+              • Chạm vào <strong>Viên Ngọc Đỏ</strong> để trả lời câu hỏi.<br />
+              • Tránh né <strong>Mưa Thiên Thạch</strong>.<br />
+              • Thu thập vật phẩm hỗ trợ: ❤️ (Máu), 🛡️ (Khiên), 🧲 (Nam châm),
+              💣 (Bom).
+            </p>
+            <p>
+              <strong>4. Tiến hóa:</strong><br />
+              • Trả lời đúng các câu hỏi của <strong>BOSS</strong> để nhận Nội
+              Tại & nâng cấp phi thuyền!
+            </p>
+          </div>
+
+          <div id="level-selection-container" class="level-container"></div>
         </div>
       </div>
-      <div id="level-selection-container" class="level-container"></div>
     </div>
 
     <div id="countdown-screen" class="ui-screen" style="display: none">
@@ -182,7 +194,7 @@
       </div>
     </div>
 
-    <div id="help-btn" onclick="openHelpModal()">❓</div>
+    <div id="help-btn" onclick="openHelpModal()">?</div>
 
     <div id="help-modal" class="ui-screen" style="display: none">
       <div class="ui-content radar-panel help-box">

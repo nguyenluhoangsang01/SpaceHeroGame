@@ -29,7 +29,6 @@ body {
   max-width: 800px;
   width: 90%;
   text-align: center;
-  padding: 20px 20px 0;
 }
 .ui-title {
   font-size: clamp(4.2rem, 8vmin, 5.5rem);
@@ -46,16 +45,19 @@ body {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid #00d2d3;
   border-radius: 10px;
-  padding: 20px;
+  padding: 10px 20px;
   margin-bottom: 30px;
   text-align: left;
   line-height: 1.6;
-  font-size: clamp(0.95rem, 2.2vmin, 1.05rem);
+  font-size: 18px;
   color: #dfe6e9;
 }
 .guide-box h3 {
   color: #00d2d3;
   margin-top: 0;
+}
+.guide-box p {
+  font-size: 20px;
 }
 .key-cap {
   display: inline-block;
@@ -815,7 +817,7 @@ body {
 
 /* ================== PHẦN CSS TỐI ƯU HÓA TỪ INLINE ================== */
 .guide-header {
-  font-size: 1.3rem;
+  font-size: 1.6rem;
   border-bottom: 2px solid #00d2d3;
   padding-bottom: 10px;
   text-align: center;
@@ -823,10 +825,11 @@ body {
 }
 .level-container {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  justify-content: space-between;
   gap: 15px;
-  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
 }
 
 #countdown-screen {
@@ -1037,20 +1040,30 @@ body {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  font-size: 24px;
+  font-size: 26px;
+  font-weight: 900;
+  font-family: "Exo 2", sans-serif;
   cursor: pointer;
   z-index: 9999999999;
   background: rgba(13, 27, 51, 0.85);
-  border: 2px solid #00ffff;
+  border: 2px solid #ff4757;
+  color: #ff4757;
   border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  display: flex;
+  width: 50px;
+  height: 50px;
+  display: none;
   justify-content: center;
   align-items: center;
-  color: white;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-  transition: 0.2s;
+  box-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+#help-btn:hover {
+  background: #ff4757;
+  color: #ffffff;
+  transform: scale(1.15) rotate(15deg);
+  box-shadow:
+    0 0 20px rgba(255, 71, 87, 0.8),
+    0 0 40px rgba(255, 71, 87, 0.5);
 }
 #help-modal {
   z-index: 9999999999;
@@ -1073,7 +1086,7 @@ body {
 }
 .help-header {
   text-align: center;
-  margin-top: 0;
+  margin-top: 10px;
 }
 .help-content {
   text-align: left;
@@ -1148,6 +1161,7 @@ body {
   flex-direction: column;
   gap: 15px;
   margin-top: 20px;
+  padding: 20px;
   text-align: left;
 }
 .shortcut-group {
@@ -1175,4 +1189,166 @@ body {
 }
 .shortcut-item b {
   color: #a29bfe;
+}
+.cyber-loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.cyber-loader-text {
+  color: #00d2d3;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(0, 210, 211, 0.6);
+  animation: blink 1.5s infinite alternate;
+}
+
+.cyber-loader-track {
+  width: 800px;
+  height: 12px;
+  background: rgba(13, 27, 51, 0.9);
+  border: 2px solid #00d2d3;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 0 15px rgba(0, 210, 211, 0.3),
+    inset 0 0 5px rgba(0, 0, 0, 0.8);
+}
+
+.cyber-loader-fill {
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #00eaaf,
+    #00d2d3,
+    transparent
+  );
+  box-shadow: 0 0 10px #00eaaf;
+  animation: cyber-scan 1.2s infinite linear;
+}
+
+@keyframes cyber-scan {
+  0% {
+    left: -50%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+.mega-title {
+  font-size: clamp(9rem, 16vmin, 13rem) !important;
+  margin-bottom: 100px;
+  margin-top: 0;
+}
+
+.press-start {
+  color: #00eaaf;
+  font-size: clamp(1rem, 2.5vmin, 1.5rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  animation: blinkText 1s infinite alternate;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+@keyframes blinkText {
+  0% {
+    opacity: 1;
+    text-shadow: 0 0 15px #00eaaf;
+  }
+  100% {
+    opacity: 0.3;
+    text-shadow: none;
+  }
+}
+
+#intro-step-2 {
+  animation: fadeInMenu 0.6s ease-out;
+}
+
+@keyframes fadeInMenu {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.level-card {
+  flex: 1;
+  gap: 10px;
+  background: rgba(13, 27, 51, 0.8);
+  border: 2px solid #00d2d3;
+  border-radius: 10px;
+  padding: 6px 5px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow:
+    inset 0 0 10px rgba(0, 210, 211, 0.1),
+    0 4px 6px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.level-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fff, transparent);
+  transition: all 0.5s;
+}
+
+.level-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    inset 0 0 15px rgba(0, 210, 211, 0.3),
+    0 8px 15px rgba(0, 210, 211, 0.5);
+  background: rgba(0, 210, 211, 0.15);
+  border-color: #fff;
+}
+
+.level-card:hover::before {
+  left: 100%;
+}
+
+.card-icon {
+  font-size: 2rem;
+  margin-bottom: 5px;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+}
+
+.card-title {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin: 0 0 2px 0;
+}
+
+.card-info {
+  color: #00eaaf;
+  font-size: 0.9rem;
+  font-weight: 600;
 }

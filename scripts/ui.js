@@ -479,25 +479,60 @@ function togglePause() {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
+  const introStep1 = document.getElementById("intro-step-1");
+  const introStep2 = document.getElementById("intro-step-2");
+
+  const transitionToMenu = (event) => {
+    if (event.key === "Enter") {
+      if (introStep1 && introStep1.style.display !== "none") {
+        introStep1.style.display = "none";
+        introStep2.style.display = "block";
+
+        document.getElementById("help-btn").style.display = "flex";
+      }
+      window.removeEventListener("keydown", transitionToMenu);
+    }
+  };
+
+  window.addEventListener("keydown", transitionToMenu);
+
   const container = document.getElementById("level-selection-container");
   if (!container) return;
 
-  container.innerHTML =
-    "<p style='color: #00d2d3; font-style: italic; font-size: 1.2rem;'>Đang kết nối Server và tải dữ liệu mật...</p>";
+  container.innerHTML = `
+    <div class="cyber-loader-wrapper">
+      <div class="cyber-loader-text">Đang tải dữ liệu câu hỏi...</div>
+      <div class="cyber-loader-track">
+        <div class="cyber-loader-fill"></div>
+      </div>
+    </div>
+  `;
 
   const isLoaded = await loadSecretQuestions();
 
   container.innerHTML = "";
 
   if (isLoaded && Object.keys(quizSets).length > 0) {
+    const icons = ["🪐", "🚀", "🛸", "🌌", "🛰️", "☄️"];
+    let indexCount = 0;
+
     Object.keys(quizSets).forEach((key) => {
       const set = quizSets[key];
-      const btn = document.createElement("button");
-      btn.className = "ui-btn";
+      const card = document.createElement("div");
+
+      const icon = icons[indexCount % icons.length];
+      indexCount++;
 
       if (set && set.questions && set.questions.length > 0) {
-        btn.innerText = `OT ${key} (${set.questions.length})`;
-        btn.onclick = () => {
+        card.className = "level-card";
+
+        card.innerHTML = `
+          <div class="card-icon">${icon}</div>
+          <div class="card-title">OT ${key}</div>
+          <div class="card-info">${set.questions.length} câu hỏi</div>
+        `;
+
+        card.onclick = () => {
           if (!document.fullscreenElement) {
             document.documentElement
               .requestFullscreen()
@@ -513,12 +548,15 @@ window.addEventListener("DOMContentLoaded", async () => {
           startGame(key);
         };
       } else {
-        btn.innerText = `OT ${key} (0)`;
-        btn.disabled = true;
-        btn.style.opacity = "0.5";
-        btn.style.cursor = "not-allowed";
+        // Giao diện khi thẻ bị khóa (chưa có câu hỏi)
+        card.className = "level-card locked";
+        card.innerHTML = `
+          <div class="card-icon">🔒</div>
+          <div class="card-title">PHẦN ${key}</div>
+          <div class="card-info">Chưa mở</div>
+        `;
       }
-      container.appendChild(btn);
+      container.appendChild(card);
     });
   } else {
     container.innerHTML =
