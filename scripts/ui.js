@@ -26,26 +26,54 @@ function setupModal(item, isBoss) {
   const imgEl = document.getElementById("question-image");
   const hotspotContainer = document.getElementById("hotspot-container");
   const hotspotImg = document.getElementById("hotspot-image");
-
-  if (data.type === "hotspot") {
-    imgEl.style.display = "none";
-    hotspotImg.src = data.image;
-    hotspotContainer.style.display = "inline-block";
-  } else {
-    hotspotContainer.style.display = "none";
-    imgEl.src = data.image || "";
-    imgEl.style.display = data.image ? "block" : "none";
-  }
-
   const vidEl = document.getElementById("question-video");
-  if (data.video) {
+  const mediaLoader = document.getElementById("media-loader");
+
+  imgEl.style.display = "none";
+  hotspotContainer.style.display = "none";
+  vidEl.style.display = "none";
+  vidEl.pause();
+  vidEl.removeAttribute("src");
+  imgEl.removeAttribute("src");
+  hotspotImg.removeAttribute("src");
+  if (mediaLoader) mediaLoader.style.display = "none";
+
+  if (data.type === "hotspot" && data.image) {
+    if (mediaLoader) {
+      mediaLoader.style.display = "flex";
+      mediaLoader.innerHTML =
+        "<div class='cyber-scan-line'></div>ĐANG GIẢI MÃ ẢNH VỆ TINH...";
+    }
+    hotspotImg.onload = () => {
+      if (mediaLoader) mediaLoader.style.display = "none";
+      hotspotContainer.style.display = "inline-block";
+    };
+    hotspotImg.src = data.image;
+    if (hotspotImg.complete) hotspotImg.onload();
+  } else if (data.image) {
+    if (mediaLoader) {
+      mediaLoader.style.display = "flex";
+      mediaLoader.innerHTML =
+        "<div class='cyber-scan-line'></div>ĐANG TRÍCH XUẤT TÀI LIỆU...";
+    }
+    imgEl.onload = () => {
+      if (mediaLoader) mediaLoader.style.display = "none";
+      imgEl.style.display = "block";
+    };
+    imgEl.src = data.image;
+    if (imgEl.complete) imgEl.onload();
+  } else if (data.video) {
+    if (mediaLoader) {
+      mediaLoader.style.display = "flex";
+      mediaLoader.innerHTML =
+        "<div class='cyber-scan-line'></div>ĐANG KẾT NỐI TÍN HIỆU VIDEO...";
+    }
+    vidEl.oncanplay = () => {
+      if (mediaLoader) mediaLoader.style.display = "none";
+      vidEl.style.display = "block";
+    };
     vidEl.src = data.video;
-    vidEl.style.display = "block";
-  } else {
-    vidEl.pause();
-    vidEl.removeAttribute("src");
     vidEl.load();
-    vidEl.style.display = "none";
   }
 
   const container = document.getElementById("options-container");
