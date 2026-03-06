@@ -903,7 +903,7 @@ body {
 
 #skills-row {
   position: fixed;
-  top: 25px;
+  top: 120px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
@@ -1095,8 +1095,18 @@ body {
   margin-top: 20px;
 }
 .timer-box {
+  position: fixed !important;
+  top: 20px;
+  right: 80px;
+  height: 42px;
+  box-sizing: border-box;
   border-color: #e84393 !important;
   color: #e84393 !important;
+  margin: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  font-size: 1.8rem;
 }
 
 /* --- NÚT PAUSE Ở GÓC TRÊN CÙNG BÊN PHẢI --- */

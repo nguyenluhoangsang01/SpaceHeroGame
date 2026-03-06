@@ -1,5 +1,12 @@
 let currentSelectedOptions = [];
 
+window.triggerReload = function () {
+  document.getElementById("global-loader").style.display = "flex";
+  setTimeout(() => {
+    location.reload();
+  }, 300);
+};
+
 function setupModal(item, isBoss) {
   if (cooldownTimer || currentActiveObject === item) return;
   currentActiveObject = item;

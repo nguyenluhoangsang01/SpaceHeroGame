@@ -35,7 +35,7 @@ let lastShieldSec = -1,
   lastMagnetSec = -1;
 
 const config = {
-  type: Phaser.CANVAS,
+  type: Phaser.AUTO,
   scale: {
     mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -222,19 +222,19 @@ function create() {
     .image(0, 0, "ring")
     .setScale(0.8 * (GAME_CONFIG.player.scale / 1.5))
     .setTint(0x00ccff)
-    .setAlpha(0.6)
+    .setAlpha(0.8)
     .setVisible(false);
   shieldRing2 = this.add
     .image(0, 0, "ring")
     .setScale(1.2 * (GAME_CONFIG.player.scale / 1.5))
-    .setTint(0x00ccff)
-    .setAlpha(0.4)
+    .setTint(0x00d2d3)
+    .setAlpha(0.5)
     .setVisible(false);
   magnetEffect = this.add
     .image(0, 0, "ring")
     .setScale(2.5)
     .setTint(0xf1c40f)
-    .setAlpha(0.3)
+    .setAlpha(0.5)
     .setVisible(false);
 
   meteorGroup = this.physics.add.group({
