@@ -211,11 +211,11 @@ function create() {
   player = this.physics.add
     .sprite(150, window.innerHeight / 2, "player-ship")
     .setCollideWorldBounds(true)
-    .setScale(0.8)
+    .setScale(1)
     .setAngle(90)
     .setDrag(800)
     .setDepth(10);
-  player.body.setSize(40, 40);
+  player.body.setSize(75, 45);
   jetpack.startFollow(player);
 
   shieldRing1 = this.add

@@ -1,5 +1,5 @@
 const GAME_CONFIG = {
-  player: { initialHp: 7, speed: 300, scale: 1.5 },
+  player: { initialHp: 7, speed: 450, scale: 2.0 },
   game: {
     totalQuestions: 45,
     meteorStormTriggers: [],
@@ -8,8 +8,8 @@ const GAME_CONFIG = {
   meteor: {
     spawnDelay: 800,
     stormSpawnDelay: 250,
-    minSpeed: -600,
-    maxSpeed: -1100,
+    minSpeed: -400,
+    maxSpeed: -900,
     stormMinSpeed: -350,
     stormMaxSpeed: -500,
     maxCount: 15,
