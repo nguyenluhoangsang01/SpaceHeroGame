@@ -137,13 +137,20 @@ function startGame(setId) {
       countdownText.innerText = "BẮT ĐẦU!";
       countdownText.style.color = "#2ecc71";
 
+      countdownText.style.animation = "none";
+      countdownText.style.transform = "scale(1.2)";
+
       setTimeout(() => {
         countdownScreen.style.display = "none";
         isGameRunning = true;
+
+        countdownText.style.animation = "";
+        countdownText.style.transform = "";
+
         if (game.scene.scenes[0]) {
           game.scene.scenes[0].physics.resume();
         }
-      }, 800);
+      }, 1500);
     }
   }, 1000);
 }
