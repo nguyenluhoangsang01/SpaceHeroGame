@@ -1352,3 +1352,112 @@ body {
   font-size: 0.9rem;
   font-weight: 600;
 }
+/* ================== GIAO DIỆN THUA CUỘC (KIỂU MỚI) ================== */
+#game-over-screen {
+  background: rgba(11, 15, 25, 0.85);
+  backdrop-filter: blur(8px); /* Làm mờ cảnh game phía sau */
+}
+
+.lose-card {
+  background: linear-gradient(180deg, #1e272e 0%, #0b0f19 100%);
+  border-radius: 24px;
+  padding: 0 40px 40px;
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.8),
+    inset 0 2px 5px rgba(255, 255, 255, 0.05);
+  border: 2px solid #00d2d3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.lose-badge {
+  width: 80px;
+  height: 80px;
+  background: #0b0f19;
+  border-radius: 50%;
+  border: 3px solid #82ccdd;
+  box-shadow: 0 0 15px rgba(130, 204, 221, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -40px; /* Bí quyết để logo nhô lên khỏi viền thẻ */
+  margin-bottom: 20px;
+}
+
+.skull-icon {
+  font-size: 45px;
+  color: #fff;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.lose-title {
+  color: #ff6b81;
+  font-size: 2.2rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0 0 25px 0;
+  text-shadow: 0 2px 10px rgba(255, 107, 129, 0.4);
+}
+
+.lose-score-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 210, 211, 0.2);
+  width: 100%;
+  border-radius: 16px;
+  padding: 25px 20px;
+  margin-bottom: 30px;
+  box-sizing: border-box;
+}
+
+#end-score-text {
+  color: #81ecec;
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.lose-score-number {
+  color: #00eaaf;
+  font-size: 4rem;
+  font-weight: 900;
+  margin: 0;
+  text-shadow: 0 0 20px rgba(0, 234, 175, 0.8);
+  line-height: 1;
+}
+
+.lose-btn-group {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+}
+
+.lose-btn {
+  flex: 1;
+  padding: 15px 10px;
+  font-size: 1.05rem;
+  font-weight: 900;
+  border-radius: 12px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  font-family: "Exo 2", sans-serif;
+}
+.btn-gradient {
+  background: linear-gradient(90deg, #00d2d3, #00eaaf);
+  border: none;
+  color: #0b0f19;
+  box-shadow: 0 5px 15px rgba(0, 210, 211, 0.4);
+}
+.btn-gradient:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 234, 175, 0.7);
+  filter: brightness(1.1);
+}

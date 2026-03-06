@@ -317,8 +317,9 @@ function update(time, delta) {
       game.scene.scenes[0].physics.pause();
       isGameRunning = false;
       clearTimeout(bossSpawnTimer);
-      document.getElementById("end-score").innerText =
-        "HẾT GIỜ! Điểm số: " + score;
+      document.getElementById("end-score-text").innerText =
+        "HẾT GIỜ! ĐIỂM SỐ CỦA BẠN";
+      document.getElementById("end-score").innerText = score;
       document.getElementById("game-over-screen").style.display = "flex";
       return;
     }
@@ -864,7 +865,8 @@ function hitMeteor(player, meteor) {
     game.scene.scenes[0].physics.pause();
     isGameRunning = false;
     clearTimeout(bossSpawnTimer);
-    document.getElementById("end-score").innerText = "Điểm số: " + score;
+    document.getElementById("end-score-text").innerText = "ĐIỂM SỐ CỦA BẠN";
+    document.getElementById("end-score").innerText = score;
     document.getElementById("game-over-screen").style.display = "flex";
   }
 }

@@ -66,11 +66,23 @@
     </div>
 
     <div id="game-over-screen" class="ui-screen" style="display: none">
-      <h1 class="ui-title text-danger-title">THẤT BẠI</h1>
-      <p id="end-score" class="end-score-text">Điểm số: 0</p>
-      <button class="ui-btn btn-danger" onclick="location.reload()">
-        CHƠI LẠI
-      </button>
+      <div class="lose-card">
+        <div class="lose-badge">
+          <span class="skull-icon">💀</span>
+        </div>
+        <h1 class="lose-title">THUA CUỘC</h1>
+
+        <div class="lose-score-box">
+          <p id="end-score-text">ĐIỂM SỐ CỦA BẠN</p>
+          <p id="end-score" class="lose-score-number">0</p>
+        </div>
+
+        <div class="lose-btn-group">
+          <button class="lose-btn btn-gradient" onclick="location.reload()">
+            CHƠI LẠI
+          </button>
+        </div>
+      </div>
     </div>
 
     <div id="win-screen" class="ui-screen" style="display: none">
