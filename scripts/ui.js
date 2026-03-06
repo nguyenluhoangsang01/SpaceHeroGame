@@ -533,6 +533,8 @@ window.addEventListener("DOMContentLoaded", async () => {
         `;
 
         card.onclick = () => {
+          document.getElementById("global-loader").style.display = "flex";
+
           if (!document.fullscreenElement) {
             document.documentElement
               .requestFullscreen()
@@ -545,7 +547,10 @@ window.addEventListener("DOMContentLoaded", async () => {
               })
               .catch((err) => console.log("Không thể phóng to:", err));
           }
-          startGame(key);
+          setTimeout(() => {
+            document.getElementById("global-loader").style.display = "none";
+            startGame(key);
+          }, 400);
         };
       } else {
         // Giao diện khi thẻ bị khóa (chưa có câu hỏi)

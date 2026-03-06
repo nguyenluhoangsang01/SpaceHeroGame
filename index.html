@@ -78,7 +78,7 @@
         </div>
 
         <div class="lose-btn-group">
-          <button class="lose-btn btn-gradient" onclick="location.reload()">
+          <button class="lose-btn btn-gradient" onclick="triggerReload()">
             CHƠI LẠI
           </button>
         </div>
@@ -94,11 +94,8 @@
       <p class="win-score-box">
         Điểm số: <span class="stat-highlight" id="win-score-display">0/0</span>
       </p>
-      <button
-        class="ui-btn pulse-btn btn-win-large"
-        onclick="location.reload()"
-      >
-        CHƠI LẠI VÀ THỬ THÁCH
+      <button class="ui-btn pulse-btn btn-win-large" onclick="triggerReload()">
+        CHƠI LẠI
       </button>
     </div>
 
@@ -254,6 +251,15 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div
+      id="global-loader"
+      class="ui-screen"
+      style="display: none; z-index: 9999999999999999"
+    >
+      <div class="cyber-spinner"></div>
+      <div class="loader-text">ĐANG KHỞI ĐỘNG HỆ THỐNG...</div>
     </div>
 
     <script src="scripts/config.js"></script>

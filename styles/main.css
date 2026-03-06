@@ -1461,3 +1461,44 @@ body {
   box-shadow: 0 8px 25px rgba(0, 234, 175, 0.7);
   filter: brightness(1.1);
 }
+
+#global-loader {
+  background: rgba(11, 15, 25, 0.95);
+  backdrop-filter: blur(10px);
+  flex-direction: column;
+}
+
+.cyber-spinner {
+  width: 70px;
+  height: 70px;
+  border: 5px solid rgba(0, 210, 211, 0.1);
+  border-top-color: #00eaaf;
+  border-bottom-color: #a29bfe;
+  border-radius: 50%;
+  animation: cyber-spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  margin-bottom: 25px;
+  box-shadow: 0 0 20px rgba(0, 210, 211, 0.4);
+}
+
+.loader-text {
+  color: #00d2d3;
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-shadow: 0 0 15px rgba(0, 210, 211, 0.8);
+  animation: blinkText 1s infinite alternate;
+}
+
+@keyframes cyber-spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+    box-shadow: 0 0 30px rgba(0, 234, 175, 0.6);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
