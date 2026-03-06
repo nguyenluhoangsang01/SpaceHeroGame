@@ -12,7 +12,7 @@ const GAME_CONFIG = {
     maxSpeed: -900,
     stormMinSpeed: -350,
     stormMaxSpeed: -500,
-    maxCount: 15,
+    maxCount: 12,
   },
   items: {
     rewardSpawnDelay: 8000,
