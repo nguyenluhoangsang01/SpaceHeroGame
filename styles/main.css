@@ -111,11 +111,11 @@ body {
 
 .skill-tag {
   background: rgba(0, 0, 0, 0.8);
-  padding: 4px 10px;
-  border-radius: 20px;
+  padding: 6px 12px;
+  border-radius: 8px; /* Bo góc vuông vức hơn một chút */
+  border-left-width: 4px; /* Tô đậm viền trái để tạo điểm nhấn */
   font-size: clamp(10px, 1.8vmin, 14px);
   font-weight: 700;
-  border: 1px solid;
   white-space: nowrap;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
@@ -817,11 +817,6 @@ body {
 .text-white {
   color: #fff;
 }
-.win-text-subtitle {
-  font-size: clamp(1.5rem, 4vmin, 2.5rem);
-  margin-bottom: 20px;
-  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-}
 .win-score-box {
   font-size: clamp(1.2rem, 3.5vmin, 2.2rem);
   color: #81ecec;
@@ -856,27 +851,28 @@ body {
 
 #skills-row {
   position: fixed;
-  top: 120px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 120px; /* Nằm ngay dưới cụm HUD Điểm/Máu/Cấp */
+  left: 20px; /* Căn lề trái thẳng hàng với HUD */
+  transform: none; /* Bỏ lệnh căn giữa cũ */
   z-index: 100;
+  display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
+  align-items: flex-start; /* Ép chữ và thẻ nội tại sát lề trái */
+  gap: 10px;
   pointer-events: none;
 }
 .skills-header {
   font-weight: 900;
-  text-shadow: 1px 1px 2px #000;
+  text-shadow: 1px 1px 3px #000;
   color: #f368e0;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  letter-spacing: 1px;
 }
 #skills-list {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column; /* Xếp các thẻ dọc xuống dưới thành 1 cột */
+  gap: 8px;
+  align-items: flex-start; /* Ép sát lề trái */
 }
 
 .hud-txt-white {
