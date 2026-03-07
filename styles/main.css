@@ -1518,7 +1518,7 @@ body {
 #player-name-display {
   position: fixed !important;
   top: 20px;
-  right: 220px; /* Nằm ngay bên trái cục Timer (Timer đang ở right: 80px) */
+  right: 250px; /* Nằm ngay bên trái cục Timer (Timer đang ở right: 80px) */
   bottom: auto;
   left: auto; /* Hủy vị trí cũ ở góc dưới */
   height: 42px;

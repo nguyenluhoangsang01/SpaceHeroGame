@@ -122,37 +122,53 @@ window.selectStudent = function () {
 // 5. Logic gửi điểm tự động
 window.submitAutoScore = function () {
   if (!window.currentPlayer)
-    return alert("Lỗi: Không tìm thấy thông tin học sinh!");
-  if (window.isScoreSaved) return alert("Bạn đã lưu điểm rồi!");
+    return showCustomAlert(
+      "Không tìm thấy thông tin học sinh.\nVui lòng kiểm tra lại!",
+      "❌ LỖI DỮ LIỆU",
+    );
+
+  if (window.isScoreSaved)
+    return showCustomAlert("Bạn đã lưu điểm rồi!", "⚠️ THÔNG BÁO");
 
   const btnLose = document.getElementById("btn-save-lose");
   const btnWin = document.getElementById("btn-save-win");
   if (btnLose) btnLose.innerText = "ĐANG LƯU...";
   if (btnWin) btnWin.innerText = "ĐANG LƯU...";
 
-  const otCode = "OT " + (window.currentLevel || "1");
+  const otCode = window.currentLevel || "1";
   const finalScore = typeof score !== "undefined" ? score : 0;
 
-  const url = `${MASTER_API_URL}?action=saveScore&school=${encodeURIComponent(window.currentPlayer.school)}&lop=${encodeURIComponent(window.currentPlayer.lop)}&id=${encodeURIComponent(window.currentPlayer.id)}&fullname=${encodeURIComponent(window.currentPlayer.fullname)}&ot=${encodeURIComponent(otCode)}&score=${encodeURIComponent(finalScore)}`;
+  const url = `${MASTER_API_URL}&action=saveScore&school=${encodeURIComponent(window.currentPlayer.school)}&lop=${encodeURIComponent(window.currentPlayer.lop)}&id=${encodeURIComponent(window.currentPlayer.id)}&fullname=${encodeURIComponent(window.currentPlayer.fullname)}&ot=${encodeURIComponent(otCode)}&score=${encodeURIComponent(finalScore)}`;
 
   fetch(url)
     .then((res) => res.json())
     .then((data) => {
       if (data.status === "success") {
-        alert(
-          "✅ LƯU ĐIỂM THÀNH CÔNG!\nĐiểm của " +
-            window.currentPlayer.fullname +
-            " đã được ghi nhận.",
+        // Gọi bảng thông báo màu Xanh lá (true)
+        showCustomAlert(
+          `Điểm số [${finalScore}] của ${window.currentPlayer.fullname} đã được lưu vào sổ điểm.`,
+          "✅ LƯU THÀNH CÔNG",
+          true,
         );
         window.isScoreSaved = true;
         if (btnLose) btnLose.style.display = "none";
         if (btnWin) btnWin.style.display = "none";
-      } else throw new Error(data.msg);
+      } else {
+        // Lỗi từ máy chủ
+        showCustomAlert("Lỗi từ hệ thống: " + data.msg, "❌ TỪ CHỐI");
+        if (btnLose) btnLose.innerText = "LƯU ĐIỂM";
+        if (btnWin) btnWin.innerText = "LƯU ĐIỂM";
+      }
     })
     .catch((err) => {
-      alert("❌ Lỗi mạng: Không thể lưu điểm. Hãy thử lại!");
+      console.error("Lỗi Fetch:", err);
+      // Lỗi rớt mạng
+      showCustomAlert(
+        "Không thể kết nối tới Google Sheets.\nVui lòng kiểm tra đường truyền!",
+        "📡 MẤT KẾT NỐI",
+      );
       if (btnLose) btnLose.innerText = "LƯU ĐIỂM";
-      if (btnWin) btnWin.innerText = "LƯU ĐIỂM SỐ";
+      if (btnWin) btnWin.innerText = "LƯU ĐIỂM";
     });
 };
 
@@ -611,8 +627,26 @@ function showFeedback(text, isCorrect, isTransparent = false) {
   setTimeout(() => (fb.style.display = "none"), 1500);
 }
 
-function showCustomAlert(msg) {
+// Hàm hiển thị hộp thoại xịn sò (Biết tự đổi màu theo trạng thái)
+function showCustomAlert(msg, title = "⚠️ LƯU Ý", isSuccess = false) {
   document.getElementById("custom-alert-msg").innerText = msg;
+
+  const titleEl = document.querySelector("#custom-alert .alert-title");
+  const boxEl = document.querySelector("#custom-alert .alert-box");
+  const btnEl = document.querySelector("#custom-alert .btn-alert");
+
+  if (titleEl) titleEl.innerText = title;
+
+  // Đổi màu Xanh Ngọc nếu thành công, màu Cam rực nếu có lỗi/cảnh báo
+  const mainColor = isSuccess ? "#00eaaf" : "#f39c12";
+
+  if (titleEl) titleEl.style.color = mainColor;
+  if (boxEl) {
+    boxEl.style.borderColor = mainColor;
+    boxEl.style.boxShadow = `0 0 40px ${isSuccess ? "rgba(0, 234, 175, 0.4)" : "rgba(243, 156, 18, 0.4)"}`;
+  }
+  if (btnEl) btnEl.style.background = mainColor;
+
   document.getElementById("custom-alert").style.display = "flex";
 }
 
