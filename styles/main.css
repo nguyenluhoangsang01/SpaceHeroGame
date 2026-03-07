@@ -1429,6 +1429,8 @@ body {
   background: rgba(11, 15, 25, 0.95);
   backdrop-filter: blur(10px);
   flex-direction: column;
+  display: none;
+  z-index: 9999999999999999;
 }
 
 .cyber-spinner {
@@ -1512,15 +1514,26 @@ body {
     opacity: 1;
   }
 }
+
 #player-name-display {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  color: #00eaaf;
-  font-weight: 900;
-  font-size: 1.2rem;
-  text-shadow: 0 0 10px rgba(0, 234, 175, 0.5);
+  position: fixed !important;
+  top: 20px;
+  right: 220px; /* Nằm ngay bên trái cục Timer (Timer đang ở right: 80px) */
+  bottom: auto;
+  left: auto; /* Hủy vị trí cũ ở góc dưới */
+  height: 42px;
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  border-left: 4px solid #00eaaf;
+  border-radius: 4px;
+  padding: 0 15px;
+  color: #fff; /* Chữ màu trắng cho đồng bộ HUD */
+  font-weight: 700;
+  font-size: 1.1rem;
   z-index: 100;
+  box-sizing: border-box;
+  text-shadow: none;
 }
 
 #btn-save-win {
@@ -1529,8 +1542,8 @@ body {
 }
 
 .cyber-select {
-  padding: 10px 15px;
-  background: rgba(13, 27, 51, 0.9);
+  padding: 12px 40px 12px 15px !important; /* Tăng lề phải lên 40px để chữ không đè vào mũi tên */
+  background-color: rgba(13, 27, 51, 0.9) !important;
   color: #fff;
   border: 2px solid #00d2d3;
   border-radius: 8px;
@@ -1540,6 +1553,15 @@ body {
   outline: none;
   cursor: pointer;
   min-width: 200px;
+  /* Ẩn mũi tên mặc định xấu xí của trình duyệt */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  /* Vẽ mũi tên Sci-fi mới cách lề phải 15px */
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2300eaaf%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px top 50%; /* Mũi tên cách lề phải 15px */
+  background-size: 14px auto;
 }
 
 .cyber-select:disabled {

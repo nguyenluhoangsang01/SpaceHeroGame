@@ -731,7 +731,22 @@ window.addEventListener("DOMContentLoaded", async () => {
         `;
 
         card.onclick = () => {
+          // 🛑 BƯỚC CHẶN KIỂM TRA THÔNG TIN HỌC SINH
+          if (!window.currentPlayer) {
+            // Hiển thị bảng Alert Sci-fi tuyệt đẹp của Game
+            showCustomAlert(
+              "Vui lòng chọn thông tin học sinh trước khi bắt đầu!",
+            );
+            return; // Dừng mọi hoạt động, không cho vào Game
+          }
+
           document.getElementById("global-loader").style.display = "flex";
+
+          // Cập nhật tên lên HUD (Bỏ chữ "Phi công" cho đỡ dài, chỉ hiện Icon + Tên)
+          const nameDisplay = document.getElementById("player-name-display");
+          if (nameDisplay) {
+            nameDisplay.innerHTML = `<span style="color:#00eaaf; margin-right:8px;">🧑‍🚀</span> ${window.currentPlayer.fullname}`;
+          }
 
           if (!document.fullscreenElement) {
             document.documentElement
