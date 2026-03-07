@@ -146,7 +146,7 @@ window.submitAutoScore = function () {
       if (data.status === "success") {
         // Gọi bảng thông báo màu Xanh lá (true)
         showCustomAlert(
-          `Điểm số [${finalScore}] của ${window.currentPlayer.fullname} đã được lưu vào sổ điểm.`,
+          `Điểm [${finalScore}] của <span class="player-name">${window.currentPlayer.fullname}</span> đã được lưu.`,
           "✅ LƯU THÀNH CÔNG",
           true,
         );
@@ -629,7 +629,7 @@ function showFeedback(text, isCorrect, isTransparent = false) {
 
 // Hàm hiển thị hộp thoại xịn sò (Biết tự đổi màu theo trạng thái)
 function showCustomAlert(msg, title = "⚠️ LƯU Ý", isSuccess = false) {
-  document.getElementById("custom-alert-msg").innerText = msg;
+  document.getElementById("custom-alert-msg").innerHTML = msg;
 
   const titleEl = document.querySelector("#custom-alert .alert-title");
   const boxEl = document.querySelector("#custom-alert .alert-box");

@@ -1389,7 +1389,7 @@ body {
 
 .lose-score-number {
   color: #00eaaf;
-  font-size: 4rem;
+  font-size: 8rem;
   font-weight: 900;
   margin: 0;
   text-shadow: 0 0 20px rgba(0, 234, 175, 0.8);
@@ -1530,7 +1530,7 @@ body {
   padding: 0 15px;
   color: #fff; /* Chữ màu trắng cho đồng bộ HUD */
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.8rem;
   z-index: 100;
   box-sizing: border-box;
   text-shadow: none;
@@ -1711,4 +1711,8 @@ body {
   flex-wrap: wrap;
   justify-content: flex-start;
   margin-top: 10px;
+}
+
+.player-name {
+  text-transform: uppercase;
 }
