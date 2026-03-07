@@ -624,29 +624,6 @@ function spawnMeteor() {
 
   meteor.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
   meteor.setBounce(1).setMass(2);
-
-  // let tailOffsetX = Math.cos(angle + Math.PI) * 25 * scale;
-  // let tailOffsetY = Math.sin(angle + Math.PI) * 25 * scale;
-
-  // let emitter = meteor.getData("emitter");
-  // if (!emitter) {
-  //   emitter = plasmaManager.createEmitter({
-  //     speed: 100,
-  //     scale: { start: 0.6, end: 0 },
-  //     lifespan: 100,
-  //     quantity: 1,
-  //     angle: { min: 0, max: 360 },
-  //     follow: meteor,
-  //     followOffset: { x: tailOffsetX, y: tailOffsetY },
-  //     tint: tintColor,
-  //   });
-  //   meteor.setData("emitter", emitter);
-  // } else {
-  //   emitter.followOffset.x = tailOffsetX;
-  //   emitter.followOffset.y = tailOffsetY;
-  //   emitter.setTint(tintColor);
-  //   emitter.start();
-  // }
 }
 
 function spawnQuizItem() {
@@ -702,6 +679,13 @@ function spawnBossItem() {
     duration: 3000,
     repeat: -1,
   });
+
+  // 🌟 THUẬT TOÁN TRÁO BÀI (Xử lý dứt điểm lỗi lặp câu hỏi)
+  // Rút lá bài trên cùng ra và nhét thẳng xuống dưới đáy bộ bài
+  if (playDeck.length > 1) {
+    let topCard = playDeck.shift();
+    playDeck.push(topCard);
+  }
 
   let bossQ =
     playDeck.length > 0
@@ -891,8 +875,6 @@ function meteorVsMeteor(m1, m2) {
 
 function destroyMeteorSafely(meteor) {
   if (!meteor || !meteor.active) return;
-  let emitter = meteor.getData("emitter");
-  if (emitter) emitter.stop();
   meteorGroup.killAndHide(meteor);
   if (meteor.body) {
     meteor.body.stop();

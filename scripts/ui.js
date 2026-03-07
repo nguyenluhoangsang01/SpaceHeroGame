@@ -1,5 +1,161 @@
 let currentSelectedOptions = [];
 
+// ================= HỆ THỐNG DỮ LIỆU HỌC SINH TỰ ĐỘNG =================
+window.STUDENT_DATA = {};
+window.currentPlayer = null;
+window.isScoreSaved = false;
+
+// 🌟 ĐÃ CẬP NHẬT LINK API MỚI NHẤT CỦA BẠN:
+const MASTER_API_URL =
+  "https://script.google.com/macros/s/AKfycbwBpsGu7SvvK1wPWIh7dxVj-Fe0emy4A4nvsvbllyd4z6wRtTt6CynsXVjA25vHF7Qj7Q/exec?key=thdd@123";
+
+// 1. Hàm tự động tải dữ liệu học sinh
+window.fetchLiveStudentData = async function () {
+  const schoolSelect = document.getElementById("select-school");
+  const classSelect = document.getElementById("select-class");
+  const studentSelect = document.getElementById("select-student");
+
+  if (!schoolSelect) {
+    console.log(
+      "❌ LỖI: Không tìm thấy ô chọn trường (id='select-school') trong HTML!",
+    );
+    return;
+  }
+
+  // Ép trình duyệt nhận diện thao tác click
+  schoolSelect.onchange = window.populateClasses;
+  if (classSelect) classSelect.onchange = window.populateStudents;
+  if (studentSelect) studentSelect.onchange = window.selectStudent;
+
+  try {
+    const response = await fetch(MASTER_API_URL + "&action=getStudents");
+    const result = await response.json();
+
+    if (result.status === "success") {
+      window.STUDENT_DATA = result.data;
+      schoolSelect.innerHTML = '<option value="">-- Chọn Trường --</option>';
+
+      let validSchoolCount = 0;
+      Object.keys(window.STUDENT_DATA).forEach((school) => {
+        if (Object.keys(window.STUDENT_DATA[school]).length > 0) {
+          schoolSelect.innerHTML += `<option value="${school}">${school}</option>`;
+          validSchoolCount++;
+        }
+      });
+
+      if (validSchoolCount === 0) {
+        schoolSelect.innerHTML =
+          '<option value="">-- Danh sách trống! --</option>';
+      }
+    } else {
+      schoolSelect.innerHTML =
+        '<option value="">-- Lỗi tải dữ liệu --</option>';
+      console.log("❌ Lỗi từ Backend:", result.msg);
+    }
+  } catch (err) {
+    schoolSelect.innerHTML = '<option value="">-- Lỗi mạng / CORS --</option>';
+    console.error("❌ Lỗi hệ thống:", err);
+  }
+};
+
+// 2. Logic Chọn Trường -> Hiện Lớp
+window.populateClasses = function () {
+  const school = document.getElementById("select-school").value;
+  const classSelect = document.getElementById("select-class");
+  const studentSelect = document.getElementById("select-student");
+
+  classSelect.innerHTML = '<option value="">-- Chọn Lớp --</option>';
+  studentSelect.innerHTML = '<option value="">-- Chọn Học Sinh --</option>';
+  classSelect.disabled = true;
+  studentSelect.disabled = true;
+  window.currentPlayer = null;
+
+  if (school && window.STUDENT_DATA[school]) {
+    const sortedClasses = Object.keys(window.STUDENT_DATA[school]).sort(
+      (a, b) => a.localeCompare(b, undefined, { numeric: true }),
+    );
+    sortedClasses.forEach((cls) => {
+      classSelect.innerHTML += `<option value="${cls}">Lớp ${cls}</option>`;
+    });
+    classSelect.disabled = false;
+  }
+};
+
+// 3. Logic Chọn Lớp -> Hiện Học Sinh
+window.populateStudents = function () {
+  const school = document.getElementById("select-school").value;
+  const cls = document.getElementById("select-class").value;
+  const studentSelect = document.getElementById("select-student");
+
+  studentSelect.innerHTML = '<option value="">-- Chọn Học Sinh --</option>';
+  window.currentPlayer = null;
+
+  if (cls && window.STUDENT_DATA[school][cls]) {
+    window.STUDENT_DATA[school][cls].forEach((st) => {
+      studentSelect.innerHTML += `<option value="${st.id}">${st.id} - ${st.name}</option>`;
+    });
+    studentSelect.disabled = false;
+  } else {
+    studentSelect.disabled = true;
+  }
+};
+
+// 4. Logic chốt Học sinh
+window.selectStudent = function () {
+  const school = document.getElementById("select-school").value;
+  const cls = document.getElementById("select-class").value;
+  const stId = document.getElementById("select-student").value;
+
+  if (stId) {
+    const student = window.STUDENT_DATA[school][cls].find((s) => s.id == stId);
+    window.currentPlayer = {
+      school: school,
+      lop: cls,
+      id: student.id,
+      fullname: student.name,
+    };
+  } else {
+    window.currentPlayer = null;
+  }
+};
+
+// 5. Logic gửi điểm tự động
+window.submitAutoScore = function () {
+  if (!window.currentPlayer)
+    return alert("Lỗi: Không tìm thấy thông tin học sinh!");
+  if (window.isScoreSaved) return alert("Bạn đã lưu điểm rồi!");
+
+  const btnLose = document.getElementById("btn-save-lose");
+  const btnWin = document.getElementById("btn-save-win");
+  if (btnLose) btnLose.innerText = "ĐANG LƯU...";
+  if (btnWin) btnWin.innerText = "ĐANG LƯU...";
+
+  const otCode = "OT " + (window.currentLevel || "1");
+  const finalScore = typeof score !== "undefined" ? score : 0;
+
+  const url = `${MASTER_API_URL}?action=saveScore&school=${encodeURIComponent(window.currentPlayer.school)}&lop=${encodeURIComponent(window.currentPlayer.lop)}&id=${encodeURIComponent(window.currentPlayer.id)}&fullname=${encodeURIComponent(window.currentPlayer.fullname)}&ot=${encodeURIComponent(otCode)}&score=${encodeURIComponent(finalScore)}`;
+
+  fetch(url)
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "success") {
+        alert(
+          "✅ LƯU ĐIỂM THÀNH CÔNG!\nĐiểm của " +
+            window.currentPlayer.fullname +
+            " đã được ghi nhận.",
+        );
+        window.isScoreSaved = true;
+        if (btnLose) btnLose.style.display = "none";
+        if (btnWin) btnWin.style.display = "none";
+      } else throw new Error(data.msg);
+    })
+    .catch((err) => {
+      alert("❌ Lỗi mạng: Không thể lưu điểm. Hãy thử lại!");
+      if (btnLose) btnLose.innerText = "LƯU ĐIỂM";
+      if (btnWin) btnWin.innerText = "LƯU ĐIỂM SỐ";
+    });
+};
+
 window.triggerReload = function () {
   document.getElementById("global-loader").style.display = "flex";
   setTimeout(() => {
@@ -7,6 +163,7 @@ window.triggerReload = function () {
   }, 300);
 };
 
+// ================= GIAO DIỆN IN-GAME =================
 function setupModal(item, isBoss) {
   if (cooldownTimer || currentActiveObject === item) return;
   currentActiveObject = item;
@@ -514,6 +671,12 @@ function togglePause() {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
+  if (typeof window.fetchLiveStudentData === "function") {
+    window.fetchLiveStudentData();
+  } else {
+    console.log("❌ LỖI NGHIÊM TRỌNG: Hàm fetchLiveStudentData chưa tồn tại!");
+  }
+
   const introStep1 = document.getElementById("intro-step-1");
   const introStep2 = document.getElementById("intro-step-2");
 

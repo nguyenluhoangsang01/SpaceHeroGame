@@ -16,44 +16,88 @@
 
   <body>
     <div id="start-screen" class="ui-screen">
-      <div id="intro-step-1" class="ui-content" style="max-width: 100%">
+      <div id="intro-step-1" class="ui-content">
         <h1 class="ui-title glow-title mega-title">SPACE HERO GAME</h1>
         <p class="press-start">
           Nhấn <span class="mech-key">ENTER</span> để bắt đầu...
         </p>
       </div>
 
-      <div id="intro-step-2" style="display: none; width: 100%">
-        <div class="ui-content" style="margin: 0 auto; max-width: 850px">
-          <div class="guide-box radar-panel">
-            <h3 class="guide-header">📖 HƯỚNG DẪN CÁCH CHƠI</h3>
-            <p>
-              <strong>1. Mục tiêu:</strong> Hoàn thành tất cả câu hỏi trắc
-              nghiệm.
-            </p>
-            <p>
-              <strong>2. Điều khiển:</strong> Sử dụng các phím
-              <span class="mech-key">W</span><span class="mech-key">A</span
-              ><span class="mech-key">S</span
-              ><span class="mech-key">D</span> hoặc
-              <span class="mech-key">↑</span><span class="mech-key">←</span
-              ><span class="mech-key">↓</span><span class="mech-key">→</span>
-            </p>
-            <p>
-              <strong>3. Nhiệm vụ:</strong><br />
-              • Chạm vào <strong>Viên Ngọc Đỏ</strong> để trả lời câu hỏi.<br />
-              • Tránh né <strong>Mưa Thiên Thạch</strong>.<br />
-              • Thu thập vật phẩm hỗ trợ: ❤️ (Máu), 🛡️ (Khiên), 🧲 (Nam châm),
-              💣 (Bom).
-            </p>
-            <p>
-              <strong>4. Tiến hóa:</strong><br />
-              • Trả lời đúng các câu hỏi của <strong>BOSS</strong> để nhận Nội
-              Tại & nâng cấp phi thuyền!
-            </p>
+      <div id="intro-step-2" class="menu-screen" style="display: none">
+        <div class="dashboard-layout">
+          <div class="dashboard-sidebar">
+            <h2 class="sidebar-title">🧑‍🚀 THÔNG TIN HỌC SINH</h2>
+
+            <div class="sidebar-controls">
+              <select
+                id="select-school"
+                class="cyber-select"
+                onchange="populateClasses()"
+              >
+                <option value="">-- Đang đồng bộ dữ liệu... --</option>
+              </select>
+
+              <select
+                id="select-class"
+                class="cyber-select"
+                onchange="populateStudents()"
+                disabled
+              >
+                <option value="">-- Chọn Lớp --</option>
+              </select>
+
+              <select
+                id="select-student"
+                class="cyber-select"
+                onchange="selectStudent()"
+                disabled
+              >
+                <option value="">-- Chọn Học Sinh --</option>
+              </select>
+            </div>
+
+            <div class="sidebar-footer">NGUYỄN LỮ HOÀNG SANG</div>
           </div>
 
-          <div id="level-selection-container" class="level-container"></div>
+          <div class="dashboard-main">
+            <div class="cyber-panel">
+              <h3 class="panel-title">🎮 BẢNG ĐIỀU KHIỂN</h3>
+              <div class="panel-content">
+                <p>
+                  <b>Điều khiển:</b> Sử dụng các phím
+                  <kbd class="mech-key">W</kbd>
+                  <kbd class="mech-key">A</kbd>
+                  <kbd class="mech-key">S</kbd>
+                  <kbd class="mech-key">D</kbd>
+                  hoặc
+                  <kbd class="mech-key">↑</kbd>
+                  <kbd class="mech-key">←</kbd>
+                  <kbd class="mech-key">↓</kbd>
+                  <kbd class="mech-key">→</kbd> để di chuyển.
+                </p>
+              </div>
+            </div>
+
+            <div class="cyber-panel">
+              <h3 class="panel-title">🚀 NHIỆM VỤ</h3>
+              <div class="panel-content">
+                <ul class="panel-list">
+                  <li>Chạm vào Viên Ngọc để trả lời câu hỏi.</li>
+                  <li>Tránh né Thiên Thạch.</li>
+                  <li>
+                    Thu thập vật phẩm hỗ trợ: ❤️ (Máu), 🛡️ (Khiên), 🧲 (Nam
+                    châm), 💣 (Bom).
+                  </li>
+                </ul>
+                <p>
+                  <b>Tiến hóa:</b> Trả lời đúng các câu hỏi của <b>BOSS</b> để
+                  nhận Nội Tại & nâng cấp tối đa sức mạnh!
+                </p>
+              </div>
+            </div>
+
+            <div id="level-selection-container" class="level-grid"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -78,6 +122,13 @@
         </div>
 
         <div class="lose-btn-group">
+          <button
+            class="lose-btn btn-outline"
+            id="btn-save-lose"
+            onclick="submitAutoScore()"
+          >
+            LƯU ĐIỂM
+          </button>
           <button class="lose-btn btn-gradient" onclick="triggerReload()">
             CHƠI LẠI
           </button>
@@ -96,6 +147,13 @@
       </p>
       <button class="ui-btn pulse-btn btn-win-large" onclick="triggerReload()">
         CHƠI LẠI
+      </button>
+      <button
+        class="ui-btn pulse-btn btn-win-large"
+        id="btn-save-win"
+        onclick="submitAutoScore()"
+      >
+        LƯU ĐIỂM
       </button>
     </div>
 
@@ -144,6 +202,7 @@
           <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
         </svg>
       </div>
+      <div id="player-name-display"></div>
     </div>
 
     <div id="boss-warning">

@@ -41,24 +41,7 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.guide-box {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid #00d2d3;
-  border-radius: 10px;
-  padding: 10px 20px;
-  margin-bottom: 30px;
-  text-align: left;
-  line-height: 1.6;
-  font-size: 18px;
-  color: #dfe6e9;
-}
-.guide-box h3 {
-  color: #00d2d3;
-  margin-top: 0;
-}
-.guide-box p {
-  font-size: 20px;
-}
+
 .key-cap {
   display: inline-block;
   padding: 2px 8px;
@@ -245,7 +228,7 @@ body {
 .sortable-item,
 .matrix-table td {
   border: 2px solid #334155;
-  box-sizing: border-box; /* Fix lỗi nhúch nhích */
+  box-sizing: border-box;
 }
 
 /* 1. Trắc nghiệm */
@@ -815,23 +798,6 @@ body {
   }
 }
 
-/* ================== PHẦN CSS TỐI ƯU HÓA TỪ INLINE ================== */
-.guide-header {
-  font-size: 1.6rem;
-  border-bottom: 2px solid #00d2d3;
-  padding-bottom: 10px;
-  text-align: center;
-  margin-top: 0;
-}
-.level-container {
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: 10px;
-}
-
 #countdown-screen {
   z-index: 3500;
   background: #0b0f19;
@@ -846,19 +812,6 @@ body {
     0 0 20px rgba(0, 210, 211, 0.8),
     0 0 60px rgba(0, 210, 211, 0.5);
   animation: countdownPulse 1s ease-in-out infinite;
-}
-
-.text-danger-title {
-  color: #ff4757;
-  -webkit-text-fill-color: #ff4757;
-}
-.end-score-text {
-  font-size: 2rem;
-  margin-bottom: 30px;
-}
-.btn-danger {
-  background: #ff4757;
-  color: white;
 }
 
 .text-white {
@@ -1302,11 +1255,11 @@ body {
 
 .level-card {
   flex: 1;
-  gap: 10px;
+  gap: 15px;
   background: rgba(13, 27, 51, 0.8);
   border: 2px solid #00d2d3;
   border-radius: 10px;
-  padding: 6px 5px 12px;
+  padding: 12px 5px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -1351,7 +1304,7 @@ body {
 
 .card-title {
   color: #fff;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 900;
   text-transform: uppercase;
   margin: 0 0 2px 0;
@@ -1359,7 +1312,7 @@ body {
 
 .card-info {
   color: #00eaaf;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   font-weight: 600;
 }
 /* ================== GIAO DIỆN THUA CUỘC (KIỂU MỚI) ================== */
@@ -1558,4 +1511,182 @@ body {
     top: calc(100% - 4px);
     opacity: 1;
   }
+}
+#player-name-display {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: #00eaaf;
+  font-weight: 900;
+  font-size: 1.2rem;
+  text-shadow: 0 0 10px rgba(0, 234, 175, 0.5);
+  z-index: 100;
+}
+
+#btn-save-win {
+  background: linear-gradient(90deg, #f39c12, #e67e22);
+  margin-top: 15px;
+}
+
+.cyber-select {
+  padding: 10px 15px;
+  background: rgba(13, 27, 51, 0.9);
+  color: #fff;
+  border: 2px solid #00d2d3;
+  border-radius: 8px;
+  font-family: "Exo 2", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+  min-width: 200px;
+}
+
+.cyber-select:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #555;
+}
+
+.cyber-select option {
+  background: #0b0f19;
+  color: #00eaaf;
+}
+
+#level-selection-container {
+  display: flex;
+  flex: 1;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-top: 10px;
+}
+
+.cyber-panel {
+  flex: 1;
+  background: rgba(0, 20, 35, 0.75);
+  border: 1px solid #00f3ff;
+  border-radius: 15px;
+  padding: 10px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: inset 0 0 20px rgba(0, 243, 255, 0.05);
+}
+
+.cyber-panel h3 {
+  color: #00f3ff;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+
+#intro-step-1 {
+  max-width: 100%;
+}
+
+/* ================== MENU DASHBOARD (BƯỚC 2) ================== */
+.menu-screen {
+  width: 100%;
+  height: 100vh;
+  padding: 4vh 4vw;
+  box-sizing: border-box;
+  animation: fadeInMenu 0.6s ease-out;
+}
+
+.dashboard-layout {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  gap: 40px;
+}
+
+/* --- SIDEBAR TRÁI --- */
+.dashboard-sidebar {
+  flex: 0 0 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: rgba(0, 20, 35, 0.85);
+  border: 2px solid #00f3ff;
+  border-radius: 15px;
+  padding: 40px 30px;
+  box-shadow: 0 0 25px rgba(0, 243, 255, 0.2);
+}
+
+.sidebar-title {
+  color: #00f3ff;
+  text-align: center;
+  font-size: 1.6rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 40px;
+  text-shadow: 0 0 10px #00f3ff;
+}
+
+.sidebar-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  border-top: 1px dashed #00f3ff;
+  padding-top: 20px;
+  text-align: center;
+  color: #aaa;
+  font-size: 13px;
+}
+
+/* Override lại width cho các select bên trong sidebar */
+.dashboard-sidebar .cyber-select {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+}
+
+/* --- NỘI DUNG CHÍNH (CỘT PHẢI) --- */
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.panel-title {
+  color: #00f3ff;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+
+.panel-content {
+  color: #e0e0e0;
+  line-height: 1.8;
+  font-size: 18px;
+}
+
+.panel-content p,
+.panel-content li {
+  font-size: 18px;
+}
+
+.panel-list {
+  margin-bottom: 10px;
+  padding-left: 20px;
+}
+
+/* Layout Grid cho thẻ OT */
+.level-grid {
+  display: flex;
+  flex: 1;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-top: 10px;
 }
