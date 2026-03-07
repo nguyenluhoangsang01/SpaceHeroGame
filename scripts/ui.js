@@ -63,12 +63,19 @@ window.populateClasses = function () {
   const school = document.getElementById("select-school").value;
   const classSelect = document.getElementById("select-class");
   const studentSelect = document.getElementById("select-student");
+  const btnHistory = document.getElementById("btn-view-history");
 
   classSelect.innerHTML = '<option value="">-- Chọn Lớp --</option>';
   studentSelect.innerHTML = '<option value="">-- Chọn Họ & Tên --</option>';
   classSelect.disabled = true;
   studentSelect.disabled = true;
   window.currentPlayer = null;
+
+  // 🌟 SỬA LỖI Ở ĐÂY: Ẩn nút lịch sử và ép các thẻ OT xám mờ lại ngay lập tức
+  if (btnHistory) btnHistory.style.display = "none";
+  document
+    .querySelectorAll(".level-card:not(.locked)")
+    .forEach((card) => card.classList.add("waiting-info"));
 
   if (school && window.STUDENT_DATA[school]) {
     const sortedClasses = Object.keys(window.STUDENT_DATA[school]).sort(
@@ -86,9 +93,16 @@ window.populateStudents = function () {
   const school = document.getElementById("select-school").value;
   const cls = document.getElementById("select-class").value;
   const studentSelect = document.getElementById("select-student");
+  const btnHistory = document.getElementById("btn-view-history");
 
   studentSelect.innerHTML = '<option value="">-- Chọn Họ & Tên --</option>';
   window.currentPlayer = null;
+
+  // 🌟 SỬA LỖI Ở ĐÂY: Ẩn nút lịch sử và ép các thẻ OT xám mờ lại ngay lập tức
+  if (btnHistory) btnHistory.style.display = "none";
+  document
+    .querySelectorAll(".level-card:not(.locked)")
+    .forEach((card) => card.classList.add("waiting-info"));
 
   if (cls && window.STUDENT_DATA[school][cls]) {
     window.STUDENT_DATA[school][cls].forEach((st) => {
@@ -247,7 +261,7 @@ window.showHistory = async function () {
         // 🌟 (KẾT THÚC SẮP XẾP) --------------------------------
 
         let tableHTML = `<table class="history-table">
-          <tr><th>Thời gian nộp</th><th>Mã Nhiệm Vụ</th><th>Điểm Số</th></tr>`;
+          <tr><th>Thời gian nộp</th><th>OT</th><th>Điểm</th></tr>`;
 
         data.forEach((row) => {
           let scoreColor = "#00eaaf";
@@ -930,26 +944,15 @@ window.addEventListener("DOMContentLoaded", async () => {
         `;
 
         card.onclick = () => {
-          // 🛑 BƯỚC CHẶN 1: Nếu hệ thống đang quét lịch sử
-          if (window.isScanningHistory) {
-            showCustomAlert(
-              "⏳ Hệ thống đang quét dữ liệu. Vui lòng đợi giây lát!",
-              "🛑 HỆ THỐNG BẬN",
-            );
+          // 🛑 BƯỚC CHẶN TUYỆT ĐỐI:
+          // Nếu đang quét lịch sử HOẶC chưa chọn tên -> Khóa hoàn toàn nút bấm (Không hiện thông báo gì cả)
+          if (window.isScanningHistory || !window.currentPlayer) {
             return;
           }
 
-          // 🛑 BƯỚC CHẶN 2: Nếu chưa chọn đầy đủ tên học sinh
-          if (!window.currentPlayer) {
-            showCustomAlert(
-              "⚠️ Vui lòng hoàn tất chọn thông tin học sinh trước khi nhận nhiệm vụ!",
-              "🛑 TỪ CHỐI TRUY CẬP",
-            );
-            return;
-          }
           document.getElementById("global-loader").style.display = "flex";
 
-          // Cập nhật tên lên HUD (Bỏ chữ "Phi công" cho đỡ dài, chỉ hiện Icon + Tên)
+          // Cập nhật tên lên HUD
           const nameDisplay = document.getElementById("player-name-display");
           if (nameDisplay) {
             nameDisplay.innerHTML = `<span style="color:#00eaaf; margin-right:8px;">🧑‍🚀</span> ${window.currentPlayer.fullname}`;
