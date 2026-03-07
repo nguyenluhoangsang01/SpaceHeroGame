@@ -256,10 +256,7 @@ function create() {
     .setDrag(800)
     .setDepth(10);
 
-  // 🌟 KHẮC PHỤC LỖI TÀU KHÔNG XUỐNG ĐƯỢC ĐÁY:
-  // Thu nhỏ khung va chạm và căn giữa để tàu lọt thỏm xuống tận mép dưới
-  player.body.setSize(40, 40);
-  player.body.setOffset((player.width - 40) / 2, (player.height - 40) / 2);
+  player.body.setSize(40, 20, true);
 
   jetpack.startFollow(player);
 
@@ -487,8 +484,8 @@ function evolvePlayer() {
   evolutionLevel++;
   document.getElementById("level").innerText = evolutionLevel;
 
-  bonusSpeed += 30;
-  GAME_CONFIG.player.speed += 30;
+  bonusSpeed += 20;
+  GAME_CONFIG.player.speed += 20;
 
   let color = 0xffffff,
     message = "",
@@ -538,7 +535,7 @@ function evolvePlayer() {
       break;
     case 5:
       color = 0x9b59b6;
-      activateShield(30);
+      activateShield(20);
       message = "🛡️ CẤP 5: HỘ THỂ SIÊU CẤP!";
       msgColor = "#9b59b6";
       shortSkill = "🛡️ Khiên siêu cấp 30s";
@@ -600,6 +597,10 @@ function evolvePlayer() {
   showFloatingText(player.x, player.y, message, msgColor);
   player.setTint(color);
   player.setScale(newScale);
+
+  // 🌟 CODE MỚI: Bất chấp tàu to ra cỡ nào, luôn ép tâm va chạm nằm chính giữa
+  let coreSize = evolutionLevel === 3 ? 10 : 20; // Cấp 3 né tránh thì lõi chỉ 10x10
+  player.body.setSize(coreSize, coreSize, true);
 
   if (shieldRing1) shieldRing1.setScale(newScale * 1.0);
   if (shieldRing2) shieldRing2.setScale(newScale * 1.5);
