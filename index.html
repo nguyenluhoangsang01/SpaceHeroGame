@@ -153,16 +153,21 @@
       <p class="win-score-box">
         Điểm số: <span class="stat-highlight" id="win-score-display">0/0</span>
       </p>
-      <button class="ui-btn pulse-btn btn-win-large" onclick="triggerReload()">
-        CHƠI LẠI
-      </button>
-      <button
-        class="ui-btn pulse-btn btn-win-large"
-        id="btn-save-win"
-        onclick="submitAutoScore()"
-      >
-        LƯU ĐIỂM
-      </button>
+      <div class="ui-btn-box">
+        <button
+          class="ui-btn pulse-btn btn-win-large"
+          onclick="triggerReload()"
+        >
+          CHƠI LẠI
+        </button>
+        <button
+          class="ui-btn pulse-btn btn-win-large"
+          id="btn-save-win"
+          onclick="submitAutoScore()"
+        >
+          LƯU ĐIỂM
+        </button>
+      </div>
     </div>
 
     <div id="set-title-display" style="display: none">

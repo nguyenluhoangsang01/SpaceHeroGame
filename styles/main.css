@@ -1835,3 +1835,29 @@ body {
 #history-content::-webkit-scrollbar-thumb:hover {
   background: #00eaaf;
 }
+.ui-btn-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+}
+
+/* --- GIAO DIỆN THẺ OT BỊ KHÓA KHI CHƯA CHỌN TÊN / ĐANG QUÉT LỊCH SỬ --- */
+.level-card.waiting-info {
+  opacity: 0.4;
+  filter: grayscale(100%);
+  cursor: not-allowed !important;
+  transition: all 0.3s ease;
+}
+/* Tắt các hiệu ứng nhảy lên và nháy sáng khi đang bị khóa */
+.level-card.waiting-info:hover {
+  transform: none;
+  box-shadow:
+    inset 0 0 10px rgba(0, 210, 211, 0.1),
+    0 4px 6px rgba(0, 0, 0, 0.3);
+  background: rgba(13, 27, 51, 0.8);
+  border-color: #00d2d3;
+}
+.level-card.waiting-info::before {
+  display: none;
+}

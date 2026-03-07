@@ -100,15 +100,18 @@ window.populateStudents = function () {
   }
 };
 
+// Biến toàn cục để theo dõi xem có đang quét lịch sử không
+window.isScanningHistory = false;
+
 // 4. Logic chốt Học sinh & Tự động quét xem có lịch sử chưa
 window.selectStudent = async function () {
   const school = document.getElementById("select-school").value;
   const cls = document.getElementById("select-class").value;
-  const stSelect = document.getElementById("select-student"); // Đổi biến lấy DOM
+  const stSelect = document.getElementById("select-student");
   const stId = stSelect.value;
   const btnHistory = document.getElementById("btn-view-history");
 
-  if (btnHistory) btnHistory.style.display = "none"; // Mặc định giấu đi
+  if (btnHistory) btnHistory.style.display = "none";
 
   if (stId) {
     const student = window.STUDENT_DATA[school][cls].find((s) => s.id == stId);
@@ -119,11 +122,19 @@ window.selectStudent = async function () {
       fullname: student.name,
     };
 
-    // 🛑 BƯỚC KHÓA: Khóa ô chọn và đổi chữ báo hiệu đang quét dữ liệu
+    // Bật cờ báo hiệu đang quét
+    window.isScanningHistory = true;
+
+    // 🛑 BƯỚC KHÓA GIAO DIỆN: Khóa thanh chọn và Khóa tất cả các thẻ OT thành màu xám
     stSelect.disabled = true;
     stSelect.style.cursor = "not-allowed";
     const originalText = stSelect.options[stSelect.selectedIndex].text;
     stSelect.options[stSelect.selectedIndex].text = "⏳ Đang quét lịch sử...";
+
+    // Đánh dấu các thẻ OT là waiting-info để làm mờ
+    document
+      .querySelectorAll(".level-card:not(.locked)")
+      .forEach((card) => card.classList.add("waiting-info"));
 
     const checkUrl = `${MASTER_API_URL}&action=checkHasScore&school=${encodeURIComponent(school)}&lop=${encodeURIComponent(cls)}&id=${encodeURIComponent(stId)}`;
 
@@ -131,20 +142,33 @@ window.selectStudent = async function () {
       const response = await fetch(checkUrl);
       const result = await response.json();
 
-      // Nếu có điểm -> Bật nút Lịch Sử màu Xanh lên
       if (result.status === "success" && result.hasScore) {
         if (btnHistory) btnHistory.style.display = "block";
       }
     } catch (err) {
       console.log("Lỗi quét lịch sử:", err);
     } finally {
-      // ✅ BƯỚC MỞ KHÓA: Dù lỗi hay thành công thì cũng phải trả lại tên và mở khóa cho học sinh
+      // ✅ BƯỚC MỞ KHÓA GIAO DIỆN: Quét xong rồi (Dù lỗi hay không cũng phải mở ra cho học sinh thi)
+      window.isScanningHistory = false;
       stSelect.options[stSelect.selectedIndex].text = originalText;
       stSelect.disabled = false;
       stSelect.style.cursor = "pointer";
+
+      // Vén bức màn: Bỏ màu xám mờ, kích hoạt hiệu ứng phát sáng cho các thẻ OT
+      document
+        .querySelectorAll(".level-card:not(.locked)")
+        .forEach((card) => card.classList.remove("waiting-info"));
     }
   } else {
+    // Nếu học sinh đổi ý, click quay lại "-- Chọn Học Sinh --"
     window.currentPlayer = null;
+    window.isScanningHistory = false;
+
+    // Giấu nút lịch sử và Bắt buộc Khóa mờ lại các thẻ OT
+    if (btnHistory) btnHistory.style.display = "none";
+    document
+      .querySelectorAll(".level-card:not(.locked)")
+      .forEach((card) => card.classList.add("waiting-info"));
   }
 };
 
@@ -280,10 +304,15 @@ window.submitAutoScore = function () {
     .then((res) => res.json())
     .then((data) => {
       if (data.status === "success") {
+        const totalQ =
+          typeof GAME_CONFIG !== "undefined"
+            ? GAME_CONFIG.game.totalQuestions
+            : "?";
+
         // Gọi bảng thông báo màu Xanh lá (true)
         showCustomAlert(
-          `Điểm [${finalScore}] của <span class="player-name">${window.currentPlayer.fullname}</span> đã được lưu.`,
-          "✅ LƯU THÀNH CÔNG",
+          `<span class="player-name">${window.currentPlayer.fullname}</span>: ${finalScore}/${totalQ} điểm. Xin chức mừng!`,
+          "📡 HỆ THỐNG ĐÃ GHI NHẬN",
           true,
         );
         window.isScoreSaved = true;
@@ -892,7 +921,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       indexCount++;
 
       if (set && set.questions && set.questions.length > 0) {
-        card.className = "level-card";
+        card.className = "level-card waiting-info";
 
         card.innerHTML = `
           <div class="card-icon">${icon}</div>
@@ -901,15 +930,23 @@ window.addEventListener("DOMContentLoaded", async () => {
         `;
 
         card.onclick = () => {
-          // 🛑 BƯỚC CHẶN KIỂM TRA THÔNG TIN HỌC SINH
-          if (!window.currentPlayer) {
-            // Hiển thị bảng Alert Sci-fi tuyệt đẹp của Game
+          // 🛑 BƯỚC CHẶN 1: Nếu hệ thống đang quét lịch sử
+          if (window.isScanningHistory) {
             showCustomAlert(
-              "Vui lòng chọn thông tin học sinh trước khi bắt đầu!",
+              "⏳ Hệ thống đang quét dữ liệu. Vui lòng đợi giây lát!",
+              "🛑 HỆ THỐNG BẬN",
             );
-            return; // Dừng mọi hoạt động, không cho vào Game
+            return;
           }
 
+          // 🛑 BƯỚC CHẶN 2: Nếu chưa chọn đầy đủ tên học sinh
+          if (!window.currentPlayer) {
+            showCustomAlert(
+              "⚠️ Vui lòng hoàn tất chọn thông tin học sinh trước khi nhận nhiệm vụ!",
+              "🛑 TỪ CHỐI TRUY CẬP",
+            );
+            return;
+          }
           document.getElementById("global-loader").style.display = "flex";
 
           // Cập nhật tên lên HUD (Bỏ chữ "Phi công" cho đỡ dài, chỉ hiện Icon + Tên)
@@ -1040,9 +1077,18 @@ window.addEventListener("resize", () => {
 
       game.scale.resize(w, h);
 
-      if (typeof bgSpace !== "undefined" && bgSpace) bgSpace.setSize(w, h);
-      if (typeof bgStars !== "undefined" && bgStars) bgStars.setSize(w, h);
-    }, 500);
+      // Cập nhật lại cả Size lẫn Scale khi thu phóng web
+      if (typeof bgSpace !== "undefined" && bgSpace) {
+        bgSpace.setSize(w, h);
+        bgSpace.tileScaleY = h / bgSpace.texture.getSourceImage().height;
+        bgSpace.tileScaleX = bgSpace.tileScaleY;
+      }
+      if (typeof bgStars !== "undefined" && bgStars) {
+        bgStars.setSize(w, h);
+        bgStars.tileScaleY = h / bgStars.texture.getSourceImage().height;
+        bgStars.tileScaleX = bgStars.tileScaleY;
+      }
+    }, 1000);
   }
 });
 

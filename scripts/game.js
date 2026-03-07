@@ -158,6 +158,20 @@ function startGame(setId) {
 function preload() {
   this.load.image("space", "https://labs.phaser.io/assets/skies/space3.png");
   this.load.image("stars", "https://labs.phaser.io/assets/skies/starfield.png");
+
+  // 🌟 MỚI: 5 Bối cảnh Seamless (Nối tiếp vô tận) cực đẹp
+  this.load.image("bg-evo-1", "https://labs.phaser.io/assets/skies/nebula.jpg"); // Tinh vân xanh/hồng
+  this.load.image("bg-evo-2", "https://labs.phaser.io/assets/skies/space1.png"); // Không gian ảo ảnh
+  this.load.image("bg-evo-3", "https://labs.phaser.io/assets/skies/space2.png"); // Vũ trụ tím sẫm
+  this.load.image(
+    "bg-evo-4",
+    "https://labs.phaser.io/assets/skies/deep-space.jpg",
+  ); // Chiều không gian sâu
+  this.load.image(
+    "bg-evo-5",
+    "https://labs.phaser.io/assets/skies/darkstone.png",
+  ); // Vực thẳm Hắc thạch
+
   this.load.image(
     "player-ship",
     "https://raw.githubusercontent.com/CompleteUnityDeveloper/Laser-Defender-Original/master/Assets/Entities/Player/playerShip1_blue.png",
@@ -196,13 +210,32 @@ function preload() {
 
 function create() {
   this.physics.pause();
+
+  // 1. Cập nhật giới hạn vật lý của Vũ trụ bằng đúng kích thước màn hình
+  this.physics.world.setBounds(0, 0, window.innerWidth, window.innerHeight);
+
+  // 2. Ép giãn Background chính (bgSpace) để không bị viền đen
   bgSpace = this.add
     .tileSprite(0, 0, window.innerWidth, window.innerHeight, "space")
     .setOrigin(0, 0);
+  let spaceImg = this.textures.get("space").getSourceImage();
+  if (spaceImg) {
+    let scaleY = window.innerHeight / spaceImg.height;
+    bgSpace.tileScaleY = scaleY;
+    bgSpace.tileScaleX = scaleY; // Giữ tỷ lệ khung hình cho đẹp
+  }
+
+  // 3. Ép giãn các vì sao (bgStars)
   bgStars = this.add
     .tileSprite(0, 0, window.innerWidth, window.innerHeight, "stars")
     .setOrigin(0, 0)
     .setAlpha(0.6);
+  let starsImg = this.textures.get("stars").getSourceImage();
+  if (starsImg) {
+    let scaleY = window.innerHeight / starsImg.height;
+    bgStars.tileScaleY = scaleY;
+    bgStars.tileScaleX = scaleY;
+  }
 
   plasmaManager = this.add.particles("blue-flare");
   jetpack = plasmaManager.createEmitter({
@@ -222,7 +255,12 @@ function create() {
     .setAngle(90)
     .setDrag(800)
     .setDepth(10);
-  player.body.setSize(75, 45);
+
+  // 🌟 KHẮC PHỤC LỖI TÀU KHÔNG XUỐNG ĐƯỢC ĐÁY:
+  // Thu nhỏ khung va chạm và căn giữa để tàu lọt thỏm xuống tận mép dưới
+  player.body.setSize(40, 40);
+  player.body.setOffset((player.width - 40) / 2, (player.height - 40) / 2);
+
   jetpack.startFollow(player);
 
   shieldRing1 = this.add
@@ -458,11 +496,16 @@ function evolvePlayer() {
     shortSkill = "";
   let newScale = 0.8;
 
+  // 🌟 Biến lưu trữ ID của hình nền mới
+  let newBgKey = "space";
+
+  // Lựa chọn màu sắc, kỹ năng và BỐI CẢNH tùy theo Cấp độ
   switch (evolutionLevel) {
     case 1:
       color = 0x00ffff;
       message = "🚀 CẤP 1: TĂNG TỐC!";
       msgColor = "#00ffff";
+      newBgKey = "bg-evo-1";
       break;
     case 2:
       color = 0xffff00;
@@ -471,6 +514,7 @@ function evolvePlayer() {
       msgColor = "#ffff00";
       shortSkill = "🧲 Nam châm tự động";
       newScale = 1.0;
+      newBgKey = "bg-evo-2";
       break;
     case 3:
       color = 0xff9f43;
@@ -479,6 +523,7 @@ function evolvePlayer() {
       msgColor = "#ff9f43";
       shortSkill = "🦋 Né tránh siêu việt";
       newScale = 0.45;
+      newBgKey = "bg-evo-3";
       break;
     case 4:
       color = 0x2ecc71;
@@ -489,6 +534,7 @@ function evolvePlayer() {
       msgColor = "#2ecc71";
       shortSkill = "💚 Máu tối đa +3";
       newScale = 1.1;
+      newBgKey = "bg-evo-4";
       break;
     case 5:
       color = 0x9b59b6;
@@ -497,6 +543,7 @@ function evolvePlayer() {
       msgColor = "#9b59b6";
       shortSkill = "🛡️ Khiên siêu cấp 30s";
       newScale = 1.2;
+      newBgKey = "bg-evo-5";
       break;
     default:
       color = 0xff4757;
@@ -505,6 +552,7 @@ function evolvePlayer() {
       msgColor = "#ff4757";
       shortSkill = "🔥 Bất tử vĩnh viễn";
       newScale = 1.3;
+      newBgKey = "bg-evo-5"; // Giữ nguyên bối cảnh không gian cuối cùng
       break;
   }
 
@@ -568,6 +616,47 @@ function evolvePlayer() {
       });
     }
   });
+
+  // ==============================================================
+  // 🌌 ẢO THUẬT: CHỚP SÁNG VÀ DỊCH CHUYỂN KHÔNG GIAN
+  // ==============================================================
+
+  game.scene.scenes[0].cameras.main.flash(800, 255, 255, 255);
+  game.scene.scenes[0].cameras.main.shake(300, 0.015);
+
+  // 1. Đổi hình nền
+  bgSpace.setTexture(newBgKey);
+
+  // 🌟 THUẬT TOÁN TIÊU DIỆT VIỀN ĐEN: Ép hình mới phải giãn kín màn hình
+  bgSpace.setSize(window.innerWidth, window.innerHeight);
+  let newImg = game.textures.get(newBgKey).getSourceImage();
+  if (newImg) {
+    let scaleNew = window.innerHeight / newImg.height;
+    bgSpace.tileScaleY = scaleNew;
+    bgSpace.tileScaleX = scaleNew;
+  }
+
+  bgSpace.clearTint();
+  bgSpace.setAlpha(0.85); // Tăng độ sáng bối cảnh lên một chút cho rực rỡ
+
+  bgStars.setTint(color);
+  bgStars.setAlpha(0.3);
+
+  // 2. Làm dịu viền HUD
+  const hudBoxes = document.querySelectorAll(".hud-box");
+  hudBoxes.forEach((box) => {
+    box.style.borderColor = msgColor;
+    box.style.color = "#ffffff";
+    box.style.boxShadow = `inset 0 0 5px ${msgColor}, 0 0 8px ${msgColor}`;
+    box.style.transition = "all 0.5s ease";
+  });
+
+  const pauseBtn = document.getElementById("pause-btn-hud");
+  if (pauseBtn) {
+    pauseBtn.style.background = "#0b0f19";
+    pauseBtn.style.border = `2px solid ${msgColor}`;
+    pauseBtn.style.boxShadow = `0 0 8px ${msgColor}`;
+  }
 }
 
 function spawnMeteor() {
