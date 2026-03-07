@@ -52,8 +52,16 @@
                 onchange="selectStudent()"
                 disabled
               >
-                <option value="">-- Chọn Học Sinh --</option>
+                <option value="">-- Chọn Họ & Tên --</option>
               </select>
+
+              <button
+                id="btn-view-history"
+                class="cyber-select"
+                onclick="window.showHistory()"
+              >
+                📜 LỊCH SỬ ĐIỂM
+              </button>
             </div>
 
             <div class="sidebar-footer">NGUYỄN LỮ HOÀNG SANG</div>
@@ -316,6 +324,21 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div id="history-modal" class="ui-screen" style="display: none">
+      <div class="alert-box">
+        <span
+          class="help-close"
+          onclick="
+            document.getElementById('history-modal').style.display = 'none'
+          "
+          >[ESC]</span
+        >
+
+        <h2 class="alert-title">📜 LỊCH SỬ ĐIỂM</h2>
+        <div id="history-content"></div>
       </div>
     </div>
 

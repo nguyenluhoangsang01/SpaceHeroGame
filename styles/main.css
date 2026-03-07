@@ -1716,3 +1716,122 @@ body {
 .player-name {
   text-transform: uppercase;
 }
+
+#btn-view-history {
+  background: #0097e6 !important;
+  text-align: center;
+  padding-right: 15px !important;
+  display: none;
+  transition: 0.3s;
+  background-image: none;
+}
+
+#history-modal {
+  z-index: 999999999999999;
+}
+
+#history-modal .alert-box {
+  position: relative;
+  max-width: 650px;
+  width: 90%;
+  border-color: #00eaaf;
+  box-shadow: 0 0 30px rgba(0, 234, 175, 0.4);
+}
+
+#history-modal .alert-box .alert-title {
+  color: #00eaaf;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+#history-modal .alert-box #history-content {
+  max-height: 400px;
+  overflow-y: auto;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.cyber-spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+}
+
+.cyber-spinner + p {
+  color: #00d2d3;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+/* ================= BẢNG LỊCH SỬ ĐIỂM ================= */
+#history-content {
+  max-height: 350px; /* Giới hạn chiều cao: Chứa khoảng 6-7 dòng, dư sức chứa 1000 dòng nhờ cuộn */
+  overflow-y: auto; /* Bật thanh cuộn dọc bên trong bảng */
+  margin-top: 15px;
+  border-radius: 8px; /* Bo góc nhẹ cho khung cuộn */
+  border: 1px solid rgba(0, 234, 175, 0.3); /* Viền mờ bao quanh khu vực bảng */
+  background: rgba(0, 0, 0, 0.4); /* Làm nền bảng tối lại để nổi bật chữ */
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Exo 2", sans-serif;
+}
+
+.history-table th {
+  position: sticky; /* SIÊU QUAN TRỌNG: Cố định Header khi cuộn xuống hàng ngàn dòng */
+  top: 0;
+  background: rgba(
+    13,
+    27,
+    51,
+    1
+  ); /* Nền tối tuyệt đối để đè lên các dòng trôi qua bên dưới */
+  color: #00eaaf;
+  padding: 15px 10px;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  border-bottom: 2px solid #00eaaf; /* Gạch dưới Header đậm hơn */
+  z-index: 2; /* Đảm bảo tiêu đề luôn nằm trên cùng */
+  letter-spacing: 1px;
+}
+
+.history-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Kẻ ngang mờ ngăn cách các dòng */
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* Ẩn dòng kẻ dưới của hàng cuối cùng cho đẹp */
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+
+.history-table tr:hover td {
+  background: rgba(
+    0,
+    234,
+    175,
+    0.15
+  ); /* Hiệu ứng sáng lên khi rê chuột vào dòng */
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+/* --- Tùy chỉnh thanh cuộn siêu mượt (Scrollbar) chuẩn Sci-fi --- */
+#history-content::-webkit-scrollbar {
+  width: 8px;
+}
+#history-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 0 8px 8px 0;
+}
+#history-content::-webkit-scrollbar-thumb {
+  background: #00d2d3;
+  border-radius: 8px;
+}
+#history-content::-webkit-scrollbar-thumb:hover {
+  background: #00eaaf;
+}

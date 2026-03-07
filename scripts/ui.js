@@ -7,7 +7,7 @@ window.isScoreSaved = false;
 
 // 🌟 ĐÃ CẬP NHẬT LINK API MỚI NHẤT CỦA BẠN:
 const MASTER_API_URL =
-  "https://script.google.com/macros/s/AKfycbwBpsGu7SvvK1wPWIh7dxVj-Fe0emy4A4nvsvbllyd4z6wRtTt6CynsXVjA25vHF7Qj7Q/exec?key=thdd@123";
+  "https://script.google.com/macros/s/AKfycbxWgRpcx4bYeK_CfdBi6u1p0PSLyj4b980pU1b-mi3bHw1uZ5UjTrI-3AFn71Gl8K7S4Q/exec?key=thdd@123";
 
 // 1. Hàm tự động tải dữ liệu học sinh
 window.fetchLiveStudentData = async function () {
@@ -65,7 +65,7 @@ window.populateClasses = function () {
   const studentSelect = document.getElementById("select-student");
 
   classSelect.innerHTML = '<option value="">-- Chọn Lớp --</option>';
-  studentSelect.innerHTML = '<option value="">-- Chọn Học Sinh --</option>';
+  studentSelect.innerHTML = '<option value="">-- Chọn Họ & Tên --</option>';
   classSelect.disabled = true;
   studentSelect.disabled = true;
   window.currentPlayer = null;
@@ -87,7 +87,7 @@ window.populateStudents = function () {
   const cls = document.getElementById("select-class").value;
   const studentSelect = document.getElementById("select-student");
 
-  studentSelect.innerHTML = '<option value="">-- Chọn Học Sinh --</option>';
+  studentSelect.innerHTML = '<option value="">-- Chọn Họ & Tên --</option>';
   window.currentPlayer = null;
 
   if (cls && window.STUDENT_DATA[school][cls]) {
@@ -100,11 +100,15 @@ window.populateStudents = function () {
   }
 };
 
-// 4. Logic chốt Học sinh
-window.selectStudent = function () {
+// 4. Logic chốt Học sinh & Tự động quét xem có lịch sử chưa
+window.selectStudent = async function () {
   const school = document.getElementById("select-school").value;
   const cls = document.getElementById("select-class").value;
-  const stId = document.getElementById("select-student").value;
+  const stSelect = document.getElementById("select-student"); // Đổi biến lấy DOM
+  const stId = stSelect.value;
+  const btnHistory = document.getElementById("btn-view-history");
+
+  if (btnHistory) btnHistory.style.display = "none"; // Mặc định giấu đi
 
   if (stId) {
     const student = window.STUDENT_DATA[school][cls].find((s) => s.id == stId);
@@ -114,8 +118,140 @@ window.selectStudent = function () {
       id: student.id,
       fullname: student.name,
     };
+
+    // 🛑 BƯỚC KHÓA: Khóa ô chọn và đổi chữ báo hiệu đang quét dữ liệu
+    stSelect.disabled = true;
+    stSelect.style.cursor = "not-allowed";
+    const originalText = stSelect.options[stSelect.selectedIndex].text;
+    stSelect.options[stSelect.selectedIndex].text = "⏳ Đang quét lịch sử...";
+
+    const checkUrl = `${MASTER_API_URL}&action=checkHasScore&school=${encodeURIComponent(school)}&lop=${encodeURIComponent(cls)}&id=${encodeURIComponent(stId)}`;
+
+    try {
+      const response = await fetch(checkUrl);
+      const result = await response.json();
+
+      // Nếu có điểm -> Bật nút Lịch Sử màu Xanh lên
+      if (result.status === "success" && result.hasScore) {
+        if (btnHistory) btnHistory.style.display = "block";
+      }
+    } catch (err) {
+      console.log("Lỗi quét lịch sử:", err);
+    } finally {
+      // ✅ BƯỚC MỞ KHÓA: Dù lỗi hay thành công thì cũng phải trả lại tên và mở khóa cho học sinh
+      stSelect.options[stSelect.selectedIndex].text = originalText;
+      stSelect.disabled = false;
+      stSelect.style.cursor = "pointer";
+    }
   } else {
     window.currentPlayer = null;
+  }
+};
+
+// Tính năng Xem Lịch sử (Đã tích hợp thuật toán Sắp xếp Kép)
+window.showHistory = async function () {
+  if (!window.currentPlayer) return;
+
+  const modal = document.getElementById("history-modal");
+  const content = document.getElementById("history-content");
+  const btnHistory = document.getElementById("btn-view-history");
+
+  // 🛑 CHẶN BẤM NHIỀU LẦN: Khóa nút ngay khi vừa bấm
+  if (btnHistory) {
+    btnHistory.disabled = true;
+    btnHistory.innerHTML = "⏳ ĐANG TẢI...";
+    btnHistory.style.opacity = "0.5";
+    btnHistory.style.cursor = "not-allowed";
+  }
+
+  if (!modal || !content) {
+    alert("❌ THIẾU GIAO DIỆN: Trình duyệt không tìm thấy 'history-modal'.");
+    if (btnHistory) {
+      btnHistory.disabled = false;
+      btnHistory.innerHTML = "📜 LỊCH SỬ ĐIỂM";
+      btnHistory.style.opacity = "1";
+      btnHistory.style.cursor = "pointer";
+    }
+    return;
+  }
+
+  modal.style.display = "flex";
+
+  content.innerHTML = `
+    <div style="text-align:center; padding: 20px;">
+      <div class="cyber-spinner"></div>
+      <p style="color: #00d2d3; margin-top: 15px; font-weight: bold;">ĐANG KẾT NỐI VỚI VỆ TINH DỮ LIỆU...</p>
+    </div>`;
+
+  const url = `${MASTER_API_URL}&action=getHistory&school=${encodeURIComponent(window.currentPlayer.school)}&lop=${encodeURIComponent(window.currentPlayer.lop)}&id=${encodeURIComponent(window.currentPlayer.id)}`;
+
+  try {
+    const response = await fetch(url);
+    const result = await response.json();
+
+    if (result.status === "success") {
+      let data = result.data; // Lấy mảng dữ liệu
+
+      if (data.length === 0) {
+        content.innerHTML = `<p style='text-align:center; font-size: 1.2rem; color: #aaa;'>Phi công <b class="player-name">${window.currentPlayer.fullname}</b> chưa có dữ liệu làm bài nào.</p>`;
+      } else {
+        // 🌟 THUẬT TOÁN SẮP XẾP KÉP (OT -> THỜI GIAN)
+        data.sort((a, b) => {
+          // Ưu tiên 1: Sắp xếp theo OT (Hỗ trợ đọc số: OT 2 sẽ đứng trước OT 10)
+          let otA = String(a.ot).trim();
+          let otB = String(b.ot).trim();
+          let otCompare = otA.localeCompare(otB, undefined, { numeric: true });
+
+          if (otCompare !== 0) return otCompare; // Nếu khác OT thì xếp theo OT
+
+          // Ưu tiên 2: Nếu cùng một OT -> Xếp theo Thời gian (Lần làm mới nhất ngoi lên trên)
+          // (Cần hàm dịch định dạng "HH:mm:ss - DD/MM/YYYY" sang thời gian máy tính hiểu)
+          const parseCustomDate = (timeStr) => {
+            try {
+              let parts = timeStr.split(" - ");
+              let t = parts[0].split(":"); // [giờ, phút, giây]
+              let d = parts[1].split("/"); // [ngày, tháng, năm]
+              // Lưu ý: Tháng trong JS tính từ 0 (0-11) nên phải trừ 1
+              return new Date(d[2], d[1] - 1, d[0], t[0], t[1], t[2]).getTime();
+            } catch (e) {
+              return 0;
+            }
+          };
+
+          return parseCustomDate(b.time) - parseCustomDate(a.time);
+        });
+        // 🌟 (KẾT THÚC SẮP XẾP) --------------------------------
+
+        let tableHTML = `<table class="history-table">
+          <tr><th>Thời gian nộp</th><th>Mã Nhiệm Vụ</th><th>Điểm Số</th></tr>`;
+
+        data.forEach((row) => {
+          let scoreColor = "#00eaaf";
+          if (parseInt(row.score) < 20) scoreColor = "#ff4757";
+          else if (parseInt(row.score) < 35) scoreColor = "#f1c40f";
+
+          tableHTML += `<tr>
+            <td style="color: #dcdde1;">${row.time}</td>
+            <td style="color: #a29bfe; font-weight: bold;">${row.ot}</td>
+            <td><b style="color:${scoreColor}; font-size: 1.3rem;">${row.score}</b></td>
+          </tr>`;
+        });
+        tableHTML += `</table>`;
+        content.innerHTML = tableHTML;
+      }
+    } else {
+      content.innerHTML = `<p style="color:#ff4757; text-align:center;">Lỗi hệ thống: ${result.msg}</p>`;
+    }
+  } catch (err) {
+    content.innerHTML = `<p style="color:#ff4757; text-align:center;">📡 Không thể kết nối tới kho dữ liệu!</p>`;
+  } finally {
+    // ✅ MỞ KHÓA NÚT: Khi đã load xong
+    if (btnHistory) {
+      btnHistory.disabled = false;
+      btnHistory.innerHTML = "📜 LỊCH SỬ ĐIỂM";
+      btnHistory.style.opacity = "1";
+      btnHistory.style.cursor = "pointer";
+    }
   }
 };
 
@@ -837,6 +973,12 @@ window.addEventListener("keydown", (e) => {
   }
   if (e.key === "Escape") {
     e.preventDefault();
+
+    const historyModal = document.getElementById("history-modal");
+    if (historyModal && historyModal.style.display === "flex") {
+      historyModal.style.display = "none";
+      return;
+    }
 
     const customAlert = document.getElementById("custom-alert");
 
