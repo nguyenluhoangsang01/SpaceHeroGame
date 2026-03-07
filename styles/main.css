@@ -1661,7 +1661,8 @@ body {
   padding-top: 20px;
   text-align: center;
   color: #aaa;
-  font-size: 13px;
+  font-size: 16px;
+  font-style: italic;
 }
 
 /* Override lại width cho các select bên trong sidebar */
