@@ -899,6 +899,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         introStep1.style.display = "none";
         introStep2.style.display = "block";
 
+        document.getElementById("fullscreen-btn").style.display = "flex";
         document.getElementById("help-btn").style.display = "flex";
       }
       window.removeEventListener("keydown", transitionToMenu);
@@ -990,6 +991,30 @@ window.addEventListener("DOMContentLoaded", async () => {
     container.innerHTML =
       "<p style='color: #ff4757; font-weight: bold;'>⚠️ KHÔNG THỂ LẤY ĐƯỢC DỮ LIỆU. VUI LÒNG KIỂM TRA KẾT NỐI!</p>";
   }
+
+  // Lắng nghe sự kiện click nút Fullscreen
+  const fsBtn = document.getElementById("fullscreen-btn");
+  if (fsBtn) {
+    fsBtn.addEventListener("click", () => {
+      if (!document.fullscreenElement) {
+        // Nếu chưa full -> Bật Fullscreen
+        document.documentElement.requestFullscreen().catch((err) => {
+          console.log(`Lỗi phóng to: ${err.message}`);
+        });
+        fsBtn.innerHTML = "⤡"; // Đổi icon thành Thu nhỏ
+        fsBtn.style.borderColor = "#ff4757"; // Đổi sang màu đỏ cho ngầu
+        fsBtn.style.color = "#ff4757";
+      } else {
+        // Nếu đang full -> Thoát Fullscreen
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+        fsBtn.innerHTML = "⤢"; // Trả lại icon Phóng to
+        fsBtn.style.borderColor = "#00eaaf"; // Trả lại màu xanh ngọc
+        fsBtn.style.color = "#00eaaf";
+      }
+    });
+  }
 });
 
 window.addEventListener("keydown", (e) => {
@@ -1007,6 +1032,8 @@ window.addEventListener("keydown", (e) => {
         "Escape",
         "h",
         "H",
+        "f",
+        "F",
       ].includes(e.key)
     )
       return;
@@ -1069,6 +1096,11 @@ window.addEventListener("keydown", (e) => {
   }
   if (e.key.toLowerCase() === "h" && !isQuizOpen) {
     isHelpOpen ? closeHelpModal() : openHelpModal();
+  }
+  if (e.key.toLowerCase() === "f" && e.target.tagName !== "INPUT") {
+    e.preventDefault();
+    const fsBtn = document.getElementById("fullscreen-btn");
+    if (fsBtn) fsBtn.click();
   }
 });
 

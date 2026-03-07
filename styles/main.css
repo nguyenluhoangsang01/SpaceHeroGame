@@ -1007,12 +1007,13 @@ body {
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 #help-btn:hover {
-  background: #ff4757;
-  color: #ffffff;
-  transform: scale(1.15) rotate(15deg);
+  background: rgb(255, 71, 87, 0.2);
   box-shadow:
     0 0 20px rgba(255, 71, 87, 0.8),
-    0 0 40px rgba(255, 71, 87, 0.5);
+    0 0 40px rgba(255, 71, 87, 0.4);
+  transform: scale(1.15) rotate(15deg);
+  color: #ffffff;
+  border-color: #ffffff;
 }
 #help-modal {
   z-index: 9999999999;
@@ -1036,12 +1037,13 @@ body {
 .help-header {
   text-align: center;
   margin-top: 10px;
+  margin-bottom: 0;
 }
 .help-content {
   text-align: left;
   line-height: 1.8;
   font-size: 1.1rem;
-  margin-top: 20px;
+  margin-top: 0 !important;
 }
 .timer-box {
   position: fixed !important;
@@ -1857,4 +1859,37 @@ body {
 }
 .level-card.waiting-info::before {
   display: none;
+}
+
+/* ================== NÚT FULLSCREEN (CÂN BẰNG HOÀN HẢO) ================== */
+#fullscreen-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 90px;
+  font-size: 26px;
+  font-weight: 900;
+  font-family: "Exo 2", sans-serif;
+  cursor: pointer;
+  z-index: 9999999999;
+  background-color: rgba(13, 27, 51, 0.85);
+  border: 2px solid #00d2d3;
+  color: #00d2d3;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 8px rgba(0, 210, 211, 0.4);
+  transition: all 0.2s ease-in-out;
+}
+
+#fullscreen-btn:hover {
+  background-color: rgba(0, 210, 211, 0.2);
+  box-shadow:
+    0 0 15px rgba(0, 210, 211, 0.8),
+    inset 0 0 10px rgba(0, 210, 211, 0.4);
+  transform: scale(1.15) rotate(15deg);
+  color: #ffffff;
+  border-color: #ffffff;
 }

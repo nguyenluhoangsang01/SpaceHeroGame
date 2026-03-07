@@ -1,8 +1,7 @@
 // ==========================================
 // TRẠNG THÁI GAME
 // ==========================================
-let playDeck = [],
-  currentActiveObject = null;
+let playDeck = [];
 
 let score = 0,
   hp = GAME_CONFIG.player.initialHp,
@@ -22,8 +21,7 @@ let isGameRunning = false,
   isQuizOpen = false,
   isGamePaused = false,
   isHelpOpen = false,
-  gameSpeed = 1,
-  cooldownTimer = false;
+  gameSpeed = 1;
 
 let spawnTimerEvent,
   rewardTimerEvent,
@@ -50,13 +48,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 let player, cursors, wasd, meteorGroup, quizGroup, itemGroup, bossGroup;
-let bgSpace,
-  bgStars,
-  shieldRing1,
-  shieldRing2,
-  magnetEffect,
-  plasmaManager,
-  jetpack;
+let bgSpace, bgStars, shieldRing1, shieldRing2, magnetEffect, jetpack;
 
 function startGame(setId) {
   const selectedSet = typeof quizSets !== "undefined" ? quizSets[setId] : null;
@@ -98,13 +90,13 @@ function startGame(setId) {
     markersContainer.appendChild(marker);
   });
 
-  document.getElementById("start-screen").style.display = "none";
   document.getElementById("hud-container").style.display = "flex";
   document.getElementById("progress-container").style.display = "block";
   document.getElementById("total-questions-display").innerText =
     GAME_CONFIG.game.totalQuestions;
   document.getElementById("hp").innerText = "❤️".repeat(hp);
   document.getElementById("level").innerText = evolutionLevel;
+  document.getElementById("fullscreen-btn").style.display = "flex";
   document.getElementById("help-btn").style.display = "flex";
 
   timeRemaining = GAME_CONFIG.game.timeLimit;
@@ -159,18 +151,18 @@ function preload() {
   this.load.image("space", "https://labs.phaser.io/assets/skies/space3.png");
   this.load.image("stars", "https://labs.phaser.io/assets/skies/starfield.png");
 
-  // 🌟 MỚI: 5 Bối cảnh Seamless (Nối tiếp vô tận) cực đẹp
-  this.load.image("bg-evo-1", "https://labs.phaser.io/assets/skies/nebula.jpg"); // Tinh vân xanh/hồng
-  this.load.image("bg-evo-2", "https://labs.phaser.io/assets/skies/space1.png"); // Không gian ảo ảnh
-  this.load.image("bg-evo-3", "https://labs.phaser.io/assets/skies/space2.png"); // Vũ trụ tím sẫm
+  // Bối cảnh Seamless
+  this.load.image("bg-evo-1", "https://labs.phaser.io/assets/skies/nebula.jpg");
+  this.load.image("bg-evo-2", "https://labs.phaser.io/assets/skies/space1.png");
+  this.load.image("bg-evo-3", "https://labs.phaser.io/assets/skies/space2.png");
   this.load.image(
     "bg-evo-4",
     "https://labs.phaser.io/assets/skies/deep-space.jpg",
-  ); // Chiều không gian sâu
+  );
   this.load.image(
     "bg-evo-5",
     "https://labs.phaser.io/assets/skies/darkstone.png",
-  ); // Vực thẳm Hắc thạch
+  );
 
   this.load.image(
     "player-ship",
@@ -210,11 +202,8 @@ function preload() {
 
 function create() {
   this.physics.pause();
-
-  // 1. Cập nhật giới hạn vật lý của Vũ trụ bằng đúng kích thước màn hình
   this.physics.world.setBounds(0, 0, window.innerWidth, window.innerHeight);
 
-  // 2. Ép giãn Background chính (bgSpace) để không bị viền đen
   bgSpace = this.add
     .tileSprite(0, 0, window.innerWidth, window.innerHeight, "space")
     .setOrigin(0, 0);
@@ -222,10 +211,9 @@ function create() {
   if (spaceImg) {
     let scaleY = window.innerHeight / spaceImg.height;
     bgSpace.tileScaleY = scaleY;
-    bgSpace.tileScaleX = scaleY; // Giữ tỷ lệ khung hình cho đẹp
+    bgSpace.tileScaleX = scaleY;
   }
 
-  // 3. Ép giãn các vì sao (bgStars)
   bgStars = this.add
     .tileSprite(0, 0, window.innerWidth, window.innerHeight, "stars")
     .setOrigin(0, 0)
@@ -237,8 +225,7 @@ function create() {
     bgStars.tileScaleX = scaleY;
   }
 
-  plasmaManager = this.add.particles("blue-flare");
-  jetpack = plasmaManager.createEmitter({
+  jetpack = this.add.particles("blue-flare").createEmitter({
     speed: 150,
     scale: { start: 0.5, end: 0 },
     lifespan: 300,
@@ -257,7 +244,6 @@ function create() {
     .setDepth(10);
 
   player.body.setSize(40, 20, true);
-
   jetpack.startFollow(player);
 
   shieldRing1 = this.add
@@ -347,7 +333,6 @@ function update(time, delta) {
 
   if (timeRemaining > 0) {
     timeRemaining -= delta / 1000;
-
     let m = Math.floor(timeRemaining / 60);
     let s = Math.floor(timeRemaining % 60);
     document.getElementById("time-remaining").innerText =
@@ -421,26 +406,30 @@ function updateBuffs(time, delta) {
     : passiveMagnet
       ? 180
       : 0;
-  if (activeRadius > 0) {
-    if (hasMagnet) {
-      magnetEffect
-        .setPosition(player.x, player.y)
-        .setRotation(magnetEffect.rotation - 0.02)
-        .setScale(2.5 + Math.sin(time / 150) * 0.1)
-        .setVisible(true);
-      magnetTimeRemaining -= delta / 1000;
-      let currentMagnetSec = Math.ceil(magnetTimeRemaining);
-      if (currentMagnetSec !== lastMagnetSec) {
-        uiBuffTimer.innerText = currentMagnetSec + "s";
-        lastMagnetSec = currentMagnetSec;
-      }
-      if (magnetTimeRemaining <= 0) {
-        hasMagnet = false;
-        uiBuffStatus.style.display = "none";
-      }
-    } else {
-      magnetEffect.setVisible(false);
+
+  // 🌟 Gộp lệnh ẩn/hiện Nam châm
+  if (hasMagnet) {
+    magnetEffect
+      .setPosition(player.x, player.y)
+      .setRotation(magnetEffect.rotation - 0.02)
+      .setScale(2.5 + Math.sin(time / 150) * 0.1)
+      .setVisible(true);
+
+    magnetTimeRemaining -= delta / 1000;
+    let currentMagnetSec = Math.ceil(magnetTimeRemaining);
+    if (currentMagnetSec !== lastMagnetSec) {
+      uiBuffTimer.innerText = currentMagnetSec + "s";
+      lastMagnetSec = currentMagnetSec;
     }
+    if (magnetTimeRemaining <= 0) {
+      hasMagnet = false;
+      uiBuffStatus.style.display = "none";
+    }
+  } else {
+    magnetEffect.setVisible(false);
+  }
+
+  if (activeRadius > 0) {
     itemGroup.children.iterate((item) => {
       if (
         item &&
@@ -451,8 +440,6 @@ function updateBuffs(time, delta) {
         game.scene.scenes[0].physics.moveToObject(item, player, 600);
       }
     });
-  } else {
-    magnetEffect.setVisible(false);
   }
 }
 
@@ -492,11 +479,8 @@ function evolvePlayer() {
     msgColor = "#ffffff",
     shortSkill = "";
   let newScale = 0.8;
-
-  // 🌟 Biến lưu trữ ID của hình nền mới
   let newBgKey = "space";
 
-  // Lựa chọn màu sắc, kỹ năng và BỐI CẢNH tùy theo Cấp độ
   switch (evolutionLevel) {
     case 1:
       color = 0x00ffff;
@@ -515,7 +499,6 @@ function evolvePlayer() {
       break;
     case 3:
       color = 0xff9f43;
-      player.body.setSize(10, 20);
       message = "🦋 CẤP 3: LINH HOẠT!";
       msgColor = "#ff9f43";
       shortSkill = "🦋 Né tránh siêu việt";
@@ -549,7 +532,7 @@ function evolvePlayer() {
       msgColor = "#ff4757";
       shortSkill = "🔥 Bất tử vĩnh viễn";
       newScale = 1.3;
-      newBgKey = "bg-evo-5"; // Giữ nguyên bối cảnh không gian cuối cùng
+      newBgKey = "bg-evo-5";
       break;
   }
 
@@ -598,8 +581,7 @@ function evolvePlayer() {
   player.setTint(color);
   player.setScale(newScale);
 
-  // 🌟 CODE MỚI: Bất chấp tàu to ra cỡ nào, luôn ép tâm va chạm nằm chính giữa
-  let coreSize = evolutionLevel === 3 ? 10 : 20; // Cấp 3 né tránh thì lõi chỉ 10x10
+  let coreSize = evolutionLevel === 3 ? 10 : 20;
   player.body.setSize(coreSize, coreSize, true);
 
   if (shieldRing1) shieldRing1.setScale(newScale * 1.0);
@@ -618,17 +600,10 @@ function evolvePlayer() {
     }
   });
 
-  // ==============================================================
-  // 🌌 ẢO THUẬT: CHỚP SÁNG VÀ DỊCH CHUYỂN KHÔNG GIAN
-  // ==============================================================
-
   game.scene.scenes[0].cameras.main.flash(800, 255, 255, 255);
   game.scene.scenes[0].cameras.main.shake(300, 0.015);
 
-  // 1. Đổi hình nền
   bgSpace.setTexture(newBgKey);
-
-  // 🌟 THUẬT TOÁN TIÊU DIỆT VIỀN ĐEN: Ép hình mới phải giãn kín màn hình
   bgSpace.setSize(window.innerWidth, window.innerHeight);
   let newImg = game.textures.get(newBgKey).getSourceImage();
   if (newImg) {
@@ -638,12 +613,11 @@ function evolvePlayer() {
   }
 
   bgSpace.clearTint();
-  bgSpace.setAlpha(0.85); // Tăng độ sáng bối cảnh lên một chút cho rực rỡ
+  bgSpace.setAlpha(0.85);
 
   bgStars.setTint(color);
   bgStars.setAlpha(0.3);
 
-  // 2. Làm dịu viền HUD
   const hudBoxes = document.querySelectorAll(".hud-box");
   hudBoxes.forEach((box) => {
     box.style.borderColor = msgColor;
@@ -724,6 +698,7 @@ function spawnQuizItem() {
     quizGroup.countActive(true) >= 5
   )
     return;
+
   let activeIDs = [];
   quizGroup.children.iterate((child) => {
     if (child.active) activeIDs.push(child.getData("quizData").id);
@@ -733,7 +708,6 @@ function spawnQuizItem() {
   if (candidates.length === 0) return;
 
   let randomX = window.innerWidth + Phaser.Math.Between(50, 200);
-
   let item = quizGroup.create(
     randomX,
     Phaser.Math.Between(50, window.innerHeight - 50),
@@ -763,6 +737,7 @@ function spawnBossItem() {
     .setVelocityX(-100)
     .setCollideWorldBounds(true)
     .setBounce(1);
+
   game.scene.scenes[0].tweens.add({
     targets: item,
     angle: 360,
@@ -770,8 +745,6 @@ function spawnBossItem() {
     repeat: -1,
   });
 
-  // 🌟 THUẬT TOÁN TRÁO BÀI (Xử lý dứt điểm lỗi lặp câu hỏi)
-  // Rút lá bài trên cùng ra và nhét thẳng xuống dưới đáy bộ bài
   if (playDeck.length > 1) {
     let topCard = playDeck.shift();
     playDeck.push(topCard);
@@ -787,6 +760,7 @@ function spawnBossItem() {
           options: ["OK"],
           answer: ["OK"],
         };
+
   if (playDeck.length > 0) bossQ.q = "[BOSS] " + bossQ.q;
   item.setData("quizData", bossQ).setData("isBoss", true);
   showFloatingText(
@@ -800,7 +774,6 @@ function spawnBossItem() {
 function spawnRewardItem() {
   if (meteorShowerActive) return;
   const def = pickByRand(Math.random(), REWARD_TABLE);
-
   let randomX = window.innerWidth + Phaser.Math.Between(50, 250);
 
   itemGroup
@@ -932,11 +905,7 @@ function hitMeteor(player, meteor) {
     yoyo: true,
     repeat: 7,
     onComplete: () => {
-      let evoColor =
-        [0xffffff, 0x00ffff, 0xffff00, 0xff9f43, 0x2ecc71, 0x9b59b6][
-          evolutionLevel
-        ] || 0xff4757;
-      player.setTint(evoColor);
+      player.setTint(currentEvoColor); // 🌟 Thay vì gọi lại mảng, dùng thẳng trạng thái hệ thống
       player.alpha = 1;
       isInvulnerable = false;
     },
@@ -1035,19 +1004,20 @@ function finalizeResult(isCorrect, item, isBoss) {
         tint: [0xf1c40f, 0xff4757, 0x00d2d3, 0x2ecc71],
       });
     }
-    if (item?.active) item.destroy();
   } else {
     streak = 0;
     document.getElementById("streak").innerText = streak;
     if (isBoss) {
       showFeedback("LỖI HỆ THỐNG! BOSS QUAY LẠI! ⚠️", false);
-      if (item?.active) item.destroy();
       setTimeout(spawnBossItem, 2000);
     } else {
       showFeedback(getBatteryHTML(0), false, true);
-      if (item?.active) item.destroy();
     }
   }
+
+  // 🌟 Đã gộp lệnh hủy item (xóa đá quý) cho tất cả các điều kiện phía trên
+  if (item && item.active) item.destroy();
+
   setTimeout(() => {
     if (isGameRunning) {
       game.scene.scenes[0].physics.resume();
@@ -1099,15 +1069,12 @@ function getBatteryHTML(energy) {
     return `
       <div style="display: flex; align-items: center; justify-content: center;">
         <div style="width: 160px; height: 50px; border: 4px solid #ff4757; border-radius: 10px; position: relative; background: rgba(13, 27, 51, 0.95); box-shadow: 0 4px 10px rgba(0,0,0,0.5); overflow: hidden;">
-
           <svg style="position: absolute; top: -5px; left: 45%; width: 25px; height: 60px; z-index: 1;" viewBox="0 0 50 100" preserveAspectRatio="none">
              <polyline points="30,0 15,35 40,55 20,100" fill="none" stroke="#ff4757" stroke-width="4"/>
           </svg>
-
           <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 10; color: #ff4757; font-size: 24px; font-weight: 900;">
             0%
           </div>
-
           <div style="position: absolute; right: -12px; top: 11px; width: 8px; height: 20px; background: #ff4757; border-radius: 0 4px 4px 0;"></div>
         </div>
       </div>
@@ -1119,13 +1086,10 @@ function getBatteryHTML(energy) {
   return `
     <div style="display: flex; align-items: center; justify-content: center;">
       <div style="width: 160px; height: 50px; border: 4px solid #ffffff; border-radius: 10px; position: relative; padding: 4px; box-sizing: border-box; background: rgba(13, 27, 51, 0.85); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-
         <div style="width: ${energy}%; height: 100%; background: ${barColor}; border-radius: 4px; transition: width 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
-
         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 10; color: #fff; font-size: 24px; font-weight: 900; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">
           ${energy}%
         </div>
-
         <div style="position: absolute; right: -12px; top: 11px; width: 8px; height: 20px; background: #ffffff; border-radius: 0 4px 4px 0;"></div>
       </div>
     </div>
