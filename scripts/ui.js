@@ -1,4 +1,6 @@
 let currentSelectedOptions = [];
+let cooldownTimer = false;
+let currentActiveObject = null;
 
 // ================= HỆ THỐNG DỮ LIỆU HỌC SINH TỰ ĐỘNG =================
 window.STUDENT_DATA = {};
