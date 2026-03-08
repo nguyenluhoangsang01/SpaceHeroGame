@@ -155,8 +155,11 @@ function preload() {
 
   // Bối cảnh Seamless
   this.load.image("bg-evo-1", "https://labs.phaser.io/assets/skies/nebula.jpg");
-  this.load.image("bg-evo-2", "https://labs.phaser.io/assets/skies/space1.png");
-  this.load.image("bg-evo-3", "https://labs.phaser.io/assets/skies/space2.png");
+  this.load.image("bg-evo-2", "https://labs.phaser.io/assets/skies/space4.png");
+  this.load.image(
+    "bg-evo-3",
+    "https://labs.phaser.io/assets/skies/deepblue.png",
+  );
   this.load.image(
     "bg-evo-4",
     "https://labs.phaser.io/assets/skies/deep-space.jpg",
@@ -211,9 +214,12 @@ function create() {
     .setOrigin(0, 0);
   let spaceImg = this.textures.get("space").getSourceImage();
   if (spaceImg) {
-    let scaleY = window.innerHeight / spaceImg.height;
-    bgSpace.tileScaleY = scaleY;
-    bgSpace.tileScaleX = scaleY;
+    let finalScale = Math.max(
+      window.innerWidth / spaceImg.width,
+      window.innerHeight / spaceImg.height,
+    );
+    bgSpace.tileScaleX = finalScale;
+    bgSpace.tileScaleY = finalScale;
   }
 
   bgStars = this.add
@@ -609,9 +615,12 @@ function evolvePlayer() {
   bgSpace.setSize(window.innerWidth, window.innerHeight);
   let newImg = game.textures.get(newBgKey).getSourceImage();
   if (newImg) {
-    let scaleNew = window.innerHeight / newImg.height;
-    bgSpace.tileScaleY = scaleNew;
-    bgSpace.tileScaleX = scaleNew;
+    let finalScale = Math.max(
+      window.innerWidth / newImg.width,
+      window.innerHeight / newImg.height,
+    );
+    bgSpace.tileScaleX = finalScale;
+    bgSpace.tileScaleY = finalScale;
   }
 
   bgSpace.clearTint();

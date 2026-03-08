@@ -327,7 +327,7 @@ window.submitAutoScore = function () {
 
         // Gọi bảng thông báo màu Xanh lá (true)
         showCustomAlert(
-          `<span class="player-name">${window.currentPlayer.fullname}</span>: ${finalScore}/${totalQ} điểm. Xin chức mừng!`,
+          `<span class="player-name">${window.currentPlayer.fullname}</span>: ${finalScore}/${totalQ} điểm. Xin chúc mừng!`,
           "📡 HỆ THỐNG ĐÃ GHI NHẬN",
           true,
         );
