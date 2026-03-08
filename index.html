@@ -118,10 +118,13 @@
     </div>
 
     <div id="game-over-screen" class="ui-screen" style="display: none">
+      <div class="max-streak-badge badge-lose">
+        <p class="streak-title-corner">🔥 CHUỖI CAO NHẤT</p>
+        <p id="end-max-streak" class="streak-number-corner">0</p>
+      </div>
+
       <div class="lose-card">
-        <div class="lose-badge">
-          <span class="skull-icon">💀</span>
-        </div>
+        <div class="lose-badge"><span class="skull-icon">💀</span></div>
         <h1 class="lose-title">THUA CUỘC</h1>
 
         <div class="lose-score-box">
@@ -145,11 +148,17 @@
     </div>
 
     <div id="win-screen" class="ui-screen" style="display: none">
+      <div class="max-streak-badge badge-win">
+        <p class="streak-title-corner">🔥 CHUỖI CAO NHẤT</p>
+        <p id="win-max-streak" class="streak-number-corner">0</p>
+      </div>
+
       <div class="win-banner">🏆</div>
       <h1 class="ui-title">XIN CHÚC MỪNG!</h1>
       <p class="win-score-box">
         Điểm số: <span class="stat-highlight" id="win-score-display">0/0</span>
       </p>
+
       <div class="ui-btn-box">
         <button
           class="ui-btn pulse-btn btn-win-large"

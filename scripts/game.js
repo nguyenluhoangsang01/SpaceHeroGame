@@ -6,6 +6,7 @@ let playDeck = [];
 let score = 0,
   hp = GAME_CONFIG.player.initialHp,
   streak = 0,
+  maxStreak = 0,
   evolutionLevel = 0,
   bonusSpeed = 0,
   currentEvoColor = 0xffffff,
@@ -97,6 +98,7 @@ function startGame(setId) {
   document.getElementById("total-questions-display").innerText =
     GAME_CONFIG.game.totalQuestions;
   document.getElementById("hp").innerText = "❤️".repeat(hp);
+  maxStreak = 0;
   document.getElementById("level").innerText = evolutionLevel;
   document.getElementById("fullscreen-btn").style.display = "flex";
   document.getElementById("help-btn").style.display = "flex";
@@ -355,6 +357,9 @@ function update(time, delta) {
       document.getElementById("end-score-text").innerText =
         "HẾT GIỜ! ĐIỂM SỐ CỦA BẠN";
       document.getElementById("end-score").innerText = score;
+      // 🌟 In kỷ lục ra màn hình Game Over (Hết giờ)
+      let endMaxStreakEl = document.getElementById("end-max-streak");
+      if (endMaxStreakEl) endMaxStreakEl.innerText = maxStreak;
       document.getElementById("game-over-screen").style.display = "flex";
       return;
     }
@@ -928,6 +933,9 @@ function hitMeteor(player, meteor) {
     clearTimeout(bossSpawnTimer);
     document.getElementById("end-score-text").innerText = "ĐIỂM SỐ CỦA BẠN";
     document.getElementById("end-score").innerText = score;
+    // 🌟 In kỷ lục ra màn hình Game Over
+    let endMaxStreakEl = document.getElementById("end-max-streak");
+    if (endMaxStreakEl) endMaxStreakEl.innerText = maxStreak;
     document.getElementById("game-over-screen").style.display = "flex";
   }
 }
@@ -963,6 +971,12 @@ function finalizeResult(isCorrect, item, isBoss) {
   if (isCorrect) {
     score++;
     streak++;
+
+    // 🌟 Nếu chuỗi hiện tại lớn hơn kỷ lục, cập nhật kỷ lục mới!
+    if (streak > maxStreak) {
+      maxStreak = streak;
+    }
+
     document.getElementById("score").innerText = score;
     document.getElementById("streak").innerText = streak;
     document.getElementById("progress-fill").style.width =
@@ -1002,6 +1016,8 @@ function finalizeResult(isCorrect, item, isBoss) {
     if (score >= GAME_CONFIG.game.totalQuestions) {
       document.getElementById("win-score-display").innerText =
         score + "/" + GAME_CONFIG.game.totalQuestions;
+      // 🌟 In kỷ lục ra màn hình Win
+      document.getElementById("win-max-streak").innerText = maxStreak;
       document.getElementById("win-screen").style.display = "flex";
       isGameRunning = false;
       game.scene.scenes[0].add.particles("blue-flare").createEmitter({
