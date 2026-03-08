@@ -534,7 +534,7 @@ function evolvePlayer() {
       activateShield(20);
       message = "🛡️ CẤP 5: HỘ THỂ SIÊU CẤP!";
       msgColor = "#9b59b6";
-      shortSkill = "🛡️ Khiên siêu cấp 30s";
+      shortSkill = "🛡️ Khiên siêu cấp 20s";
       newScale = 1.2;
       newBgKey = "bg-evo-5";
       break;
@@ -1122,3 +1122,53 @@ function getBatteryHTML(energy) {
     </div>
   `;
 }
+
+// ==========================================
+// HÀM RESET GAME (DÙNG KHI QUAY LẠI MENU)
+// ==========================================
+window.resetGameState = function () {
+  // 1. Đưa các chỉ số về mặc định ban đầu
+  score = 0;
+  hp = typeof GAME_CONFIG !== "undefined" ? GAME_CONFIG.player.initialHp : 5;
+  streak = 0;
+  maxStreak = 0;
+  evolutionLevel = 0;
+  bonusSpeed = 0;
+  currentEvoColor = 0xffffff;
+  gameSpeed = 1;
+
+  isInvulnerable = false;
+  hasShield = false;
+  shieldTimeRemaining = 0;
+  hasMagnet = false;
+  magnetTimeRemaining = 0;
+  passiveMagnet = false;
+
+  isGameRunning = false;
+  isQuizOpen = false;
+  isGamePaused = false;
+  isHelpOpen = false;
+
+  meteorShowerActive = false;
+  bossAvailable = false;
+  clearTimeout(bossSpawnTimer);
+
+  // 2. Làm sạch các UI Text hiển thị
+  document.getElementById("score").innerText = score;
+  document.getElementById("streak").innerText = streak;
+  document.getElementById("hp").innerText = "❤️".repeat(hp);
+  document.getElementById("level").innerText = evolutionLevel;
+  document.getElementById("progress-fill").style.width = "0%";
+  document.getElementById("buff-status").style.display = "none";
+  document.getElementById("shield-status").style.display = "none";
+  document.getElementById("boss-warning").style.display = "none";
+
+  // 3. Xóa các hộp sọ đánh dấu BOSS của màn cũ
+  const markersContainer = document.getElementById("boss-markers");
+  if (markersContainer) markersContainer.innerHTML = "";
+
+  // 4. BÍ QUYẾT: Ra lệnh cho Game Engine tự hủy và tái tạo màn chơi sạch 100%
+  if (game.scene.scenes[0]) {
+    game.scene.scenes[0].scene.restart();
+  }
+};
