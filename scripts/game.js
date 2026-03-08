@@ -51,6 +51,8 @@ let player, cursors, wasd, meteorGroup, quizGroup, itemGroup, bossGroup;
 let bgSpace, bgStars, shieldRing1, shieldRing2, magnetEffect, jetpack;
 
 function startGame(setId) {
+  window.currentLevel = setId;
+
   const selectedSet = typeof quizSets !== "undefined" ? quizSets[setId] : null;
 
   if (
