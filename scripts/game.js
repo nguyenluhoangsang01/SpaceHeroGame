@@ -328,7 +328,7 @@ function update(time, delta) {
       isGameRunning = false;
       clearTimeout(bossSpawnTimer);
       document.getElementById("end-score-text").innerText =
-        "HẾT GIỜ! ĐIỂM SỐ CỦA BẠN";
+        `HẾT GIỜ! ĐIỂM SỐ CỦA <span class="player-name">${window.currentPlayer.fullname}</span>`;
       document.getElementById("end-score").innerText = score;
       // 🌟 In kỷ lục ra màn hình Game Over (Hết giờ)
       let endMaxStreakEl = document.getElementById("end-max-streak");
@@ -908,7 +908,8 @@ function hitMeteor(player, meteor) {
     game.scene.scenes[0].physics.pause();
     isGameRunning = false;
     clearTimeout(bossSpawnTimer);
-    document.getElementById("end-score-text").innerText = "ĐIỂM SỐ CỦA BẠN";
+    document.getElementById("end-score-text").innerText =
+      `ĐIỂM SỐ CỦA <span class="player-name">${window.currentPlayer.fullname}</span>`;
     document.getElementById("end-score").innerText = score;
     // 🌟 In kỷ lục ra màn hình Game Over
     let endMaxStreakEl = document.getElementById("end-max-streak");
@@ -1031,7 +1032,7 @@ function finalizeResult(isCorrect, item, isBoss) {
       isGameRunning = false;
       clearTimeout(bossSpawnTimer);
       document.getElementById("end-score-text").innerText =
-        "HẾT CÂU HỎI! ĐIỂM CỦA BẠN";
+        `HẾT CÂU HỎI! ĐIỂM CỦA <span class="player-name">${window.currentPlayer.fullname}</span>`;
       document.getElementById("end-score").innerText = score;
       let endMaxStreakEl = document.getElementById("end-max-streak");
       if (endMaxStreakEl) endMaxStreakEl.innerText = maxStreak;
