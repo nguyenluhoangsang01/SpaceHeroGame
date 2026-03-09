@@ -720,22 +720,26 @@ function spawnQuizItem() {
     if (child.active) activeIDs.push(child.getData("quizData").id);
   });
 
-  let candidates = playDeck.filter((q) => !activeIDs.includes(q.id));
-  if (candidates.length === 0) return;
+  // 🌟 THUẬT TOÁN MỚI: TÌM CÂU HỎI THEO THỨ TỰ (KHÔNG BỐC NGẪU NHIÊN NỮA)
+  // Lấy câu hỏi đầu tiên trong bộ bài mà chưa xuất hiện trên màn hình
+  let qIndex = playDeck.findIndex((q) => !activeIDs.includes(q.id));
+  if (qIndex === -1) return; // Nếu đang kẹt thì chờ
+
+  // Rút câu hỏi đó ra và nhét thẳng xuống ĐÁY bộ bài (Xếp hàng vòng tròn)
+  let nextQ = playDeck.splice(qIndex, 1)[0];
+  playDeck.push(nextQ);
 
   let randomX = window.innerWidth + Phaser.Math.Between(50, 200);
   let item = quizGroup.create(
     randomX,
-    Phaser.Math.Between(50, window.innerHeight - 50),
+    Phaser.Math.Between(130, window.innerHeight - 130), // Giữ nguyên mức 130 để né HUD sát lề
     "gem",
   );
+
   item
     .setScale(1.2)
     .setVelocityX(-200 * gameSpeed)
-    .setData(
-      "quizData",
-      candidates[Phaser.Math.Between(0, candidates.length - 1)],
-    )
+    .setData("quizData", nextQ) // 🌟 Gán câu hỏi chuẩn xác
     .setData("isBoss", false)
     .setTint(currentEvoColor);
 }
