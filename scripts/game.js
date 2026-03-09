@@ -152,59 +152,32 @@ function startGame(setId) {
 }
 
 function preload() {
-  this.load.image("space", "https://labs.phaser.io/assets/skies/space3.png");
-  this.load.image("stars", "https://labs.phaser.io/assets/skies/starfield.png");
+  this.load.image("space", "../assets/images/space/space3.png");
+  this.load.image("stars", "../assets/images/space/starfield.png");
 
   // Bối cảnh Seamless
   this.load.image("bg-evo-1", "https://labs.phaser.io/assets/skies/nebula.jpg");
-  this.load.image("bg-evo-2", "https://labs.phaser.io/assets/skies/space4.png");
+  this.load.image("bg-evo-2", "../assets/images/space/space4.png");
   this.load.image(
     "bg-evo-3",
     "https://labs.phaser.io/assets/skies/deepblue.png",
   );
-  this.load.image(
-    "bg-evo-4",
-    "https://labs.phaser.io/assets/skies/deep-space.jpg",
-  );
-  this.load.image(
-    "bg-evo-5",
-    "https://labs.phaser.io/assets/skies/darkstone.png",
-  );
+  this.load.image("bg-evo-4", "../assets/images/space/deep-space.jpg");
+  this.load.image("bg-evo-5", "../assets/images/space/darkstone.png");
 
   this.load.image(
     "player-ship",
-    "https://raw.githubusercontent.com/CompleteUnityDeveloper/Laser-Defender-Original/master/Assets/Entities/Player/playerShip1_blue.png",
+    "../assets/images/character/playerShip1_blue.png",
   );
-  this.load.image(
-    "meteor",
-    "https://labs.phaser.io/assets/games/asteroids/asteroid1.png",
-  );
-  this.load.image("gem", "https://labs.phaser.io/assets/sprites/gem.png");
-  this.load.image(
-    "boss-gem",
-    "https://labs.phaser.io/assets/sprites/diamond.png",
-  );
-  this.load.image(
-    "item-apple",
-    "https://labs.phaser.io/assets/sprites/apple.png",
-  );
-  this.load.image(
-    "item-shield",
-    "https://labs.phaser.io/assets/sprites/blue_ball.png",
-  );
-  this.load.image(
-    "item-bomb",
-    "https://labs.phaser.io/assets/sprites/mine.png",
-  );
-  this.load.image(
-    "item-magnet",
-    "https://labs.phaser.io/assets/sprites/diamond.png",
-  );
-  this.load.image(
-    "blue-flare",
-    "https://labs.phaser.io/assets/particles/blue.png",
-  );
-  this.load.image("ring", "https://labs.phaser.io/assets/particles/ring.png");
+  this.load.image("meteor", "../assets/images/items/asteroid1.png");
+  this.load.image("gem", "../assets/images/items/gem.png");
+  this.load.image("boss-gem", "../assets/images/items/diamond.png");
+  this.load.image("item-apple", "../assets/images/items/apple.png");
+  this.load.image("item-shield", "../assets/images/items/blue_ball.png");
+  this.load.image("item-bomb", "../assets/images/items/mine.png");
+  this.load.image("item-magnet", "../assets/images/items/diamond.png");
+  this.load.image("blue-flare", "../assets/images/items/blue.png");
+  this.load.image("ring", "../assets/images/items/ring.png");
 }
 
 function create() {
@@ -1038,11 +1011,30 @@ function finalizeResult(isCorrect, item, isBoss) {
   } else {
     streak = 0;
     document.getElementById("streak").innerText = streak;
+
+    // 🌟 THÊM MỚI: XÓA VĨNH VIỄN CÂU HỎI KHỎI BỘ BÀI, MẤT CƠ HỘI LẤY ĐIỂM CÂU NÀY
+    playDeck = playDeck.filter((q) => q.id !== item.getData("quizData").id);
+
     if (isBoss) {
       showFeedback("LỖI HỆ THỐNG! BOSS QUAY LẠI! ⚠️", false);
       setTimeout(spawnBossItem, 2000);
     } else {
-      showFeedback(getBatteryHTML(0), false, true);
+      showFeedback("❌ BẠN ĐÃ MẤT CƠ HỘI GHI ĐIỂM CÂU NÀY!", false, true);
+    }
+
+    // KIỂM TRA XEM CÓ BỊ HẾT CÂU HỎI MÀ CHƯA ĐẠT MAX ĐIỂM KHÔNG
+    if (playDeck.length === 0 && score < GAME_CONFIG.game.totalQuestions) {
+      setTimeout(() => {
+        game.scene.scenes[0].physics.pause();
+        isGameRunning = false;
+        clearTimeout(bossSpawnTimer);
+        document.getElementById("end-score-text").innerText =
+          "HẾT CÂU HỎI! ĐIỂM CỦA BẠN";
+        document.getElementById("end-score").innerText = score;
+        let endMaxStreakEl = document.getElementById("end-max-streak");
+        if (endMaxStreakEl) endMaxStreakEl.innerText = maxStreak;
+        document.getElementById("game-over-screen").style.display = "flex";
+      }, 1500);
     }
   }
 
@@ -1126,53 +1118,3 @@ function getBatteryHTML(energy) {
     </div>
   `;
 }
-
-// ==========================================
-// HÀM RESET GAME (DÙNG KHI QUAY LẠI MENU)
-// ==========================================
-window.resetGameState = function () {
-  // 1. Đưa các chỉ số về mặc định ban đầu
-  score = 0;
-  hp = typeof GAME_CONFIG !== "undefined" ? GAME_CONFIG.player.initialHp : 5;
-  streak = 0;
-  maxStreak = 0;
-  evolutionLevel = 0;
-  bonusSpeed = 0;
-  currentEvoColor = 0xffffff;
-  gameSpeed = 1;
-
-  isInvulnerable = false;
-  hasShield = false;
-  shieldTimeRemaining = 0;
-  hasMagnet = false;
-  magnetTimeRemaining = 0;
-  passiveMagnet = false;
-
-  isGameRunning = false;
-  isQuizOpen = false;
-  isGamePaused = false;
-  isHelpOpen = false;
-
-  meteorShowerActive = false;
-  bossAvailable = false;
-  clearTimeout(bossSpawnTimer);
-
-  // 2. Làm sạch các UI Text hiển thị
-  document.getElementById("score").innerText = score;
-  document.getElementById("streak").innerText = streak;
-  document.getElementById("hp").innerText = "❤️".repeat(hp);
-  document.getElementById("level").innerText = evolutionLevel;
-  document.getElementById("progress-fill").style.width = "0%";
-  document.getElementById("buff-status").style.display = "none";
-  document.getElementById("shield-status").style.display = "none";
-  document.getElementById("boss-warning").style.display = "none";
-
-  // 3. Xóa các hộp sọ đánh dấu BOSS của màn cũ
-  const markersContainer = document.getElementById("boss-markers");
-  if (markersContainer) markersContainer.innerHTML = "";
-
-  // 4. BÍ QUYẾT: Ra lệnh cho Game Engine tự hủy và tái tạo màn chơi sạch 100%
-  if (game.scene.scenes[0]) {
-    game.scene.scenes[0].scene.restart();
-  }
-};
