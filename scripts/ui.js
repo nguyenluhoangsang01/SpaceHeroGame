@@ -1,24 +1,17 @@
-// =====================================================================
-// PHẦN 1: BIẾN TOÀN CỤC & TRẠNG THÁI GIAO DIỆN
-// =====================================================================
 let currentSelectedOptions = [];
 let cooldownTimer = false;
 let currentActiveObject = null;
 
+// ================= HỆ THỐNG DỮ LIỆU HỌC SINH TỰ ĐỘNG =================
 window.STUDENT_DATA = {};
 window.currentPlayer = null;
 window.isScoreSaved = false;
-window.isScanningHistory = false;
 
-// Link API gốc
+// 🌟 ĐÃ CẬP NHẬT LINK API MỚI NHẤT CỦA BẠN:
 const MASTER_API_URL =
   "https://script.google.com/macros/s/AKfycbxWgRpcx4bYeK_CfdBi6u1p0PSLyj4b980pU1b-mi3bHw1uZ5UjTrI-3AFn71Gl8K7S4Q/exec?key=thdd@123";
 
-// =====================================================================
-// PHẦN 2: HỆ THỐNG KẾT NỐI API & DỮ LIỆU HỌC SINH
-// =====================================================================
-
-// 2.1. Tải dữ liệu học sinh từ Google Sheets
+// 1. Hàm tự động tải dữ liệu học sinh
 window.fetchLiveStudentData = async function () {
   const schoolSelect = document.getElementById("select-school");
   const classSelect = document.getElementById("select-class");
@@ -31,6 +24,7 @@ window.fetchLiveStudentData = async function () {
     return;
   }
 
+  // Ép trình duyệt nhận diện thao tác click
   schoolSelect.onchange = window.populateClasses;
   if (classSelect) classSelect.onchange = window.populateStudents;
   if (studentSelect) studentSelect.onchange = window.selectStudent;
@@ -66,7 +60,7 @@ window.fetchLiveStudentData = async function () {
   }
 };
 
-// 2.2. Đổ dữ liệu Lớp
+// 2. Logic Chọn Trường -> Hiện Lớp
 window.populateClasses = function () {
   const school = document.getElementById("select-school").value;
   const classSelect = document.getElementById("select-class");
@@ -79,6 +73,7 @@ window.populateClasses = function () {
   studentSelect.disabled = true;
   window.currentPlayer = null;
 
+  // 🌟 SỬA LỖI Ở ĐÂY: Ẩn nút lịch sử và ép các thẻ OT xám mờ lại ngay lập tức
   if (btnHistory) btnHistory.style.display = "none";
   document
     .querySelectorAll(".level-card:not(.locked)")
@@ -95,7 +90,7 @@ window.populateClasses = function () {
   }
 };
 
-// 2.3. Đổ dữ liệu Học sinh
+// 3. Logic Chọn Lớp -> Hiện Học Sinh
 window.populateStudents = function () {
   const school = document.getElementById("select-school").value;
   const cls = document.getElementById("select-class").value;
@@ -105,6 +100,7 @@ window.populateStudents = function () {
   studentSelect.innerHTML = '<option value="">-- Chọn Họ & Tên --</option>';
   window.currentPlayer = null;
 
+  // 🌟 SỬA LỖI Ở ĐÂY: Ẩn nút lịch sử và ép các thẻ OT xám mờ lại ngay lập tức
   if (btnHistory) btnHistory.style.display = "none";
   document
     .querySelectorAll(".level-card:not(.locked)")
@@ -120,7 +116,10 @@ window.populateStudents = function () {
   }
 };
 
-// 2.4. Chốt Học sinh & Quét lịch sử
+// Biến toàn cục để theo dõi xem có đang quét lịch sử không
+window.isScanningHistory = false;
+
+// 4. Logic chốt Học sinh & Tự động quét xem có lịch sử chưa
 window.selectStudent = async function () {
   const school = document.getElementById("select-school").value;
   const cls = document.getElementById("select-class").value;
@@ -138,13 +137,17 @@ window.selectStudent = async function () {
       id: student.id,
       fullname: student.name,
     };
+
+    // Bật cờ báo hiệu đang quét
     window.isScanningHistory = true;
 
+    // 🛑 BƯỚC KHÓA GIAO DIỆN: Khóa thanh chọn và Khóa tất cả các thẻ OT thành màu xám
     stSelect.disabled = true;
     stSelect.style.cursor = "not-allowed";
     const originalText = stSelect.options[stSelect.selectedIndex].text;
     stSelect.options[stSelect.selectedIndex].text = "⏳ Đang quét lịch sử...";
 
+    // Đánh dấu các thẻ OT là waiting-info để làm mờ
     document
       .querySelectorAll(".level-card:not(.locked)")
       .forEach((card) => card.classList.add("waiting-info"));
@@ -154,23 +157,30 @@ window.selectStudent = async function () {
     try {
       const response = await fetch(checkUrl);
       const result = await response.json();
+
       if (result.status === "success" && result.hasScore) {
         if (btnHistory) btnHistory.style.display = "block";
       }
     } catch (err) {
       console.log("Lỗi quét lịch sử:", err);
     } finally {
+      // ✅ BƯỚC MỞ KHÓA GIAO DIỆN: Quét xong rồi (Dù lỗi hay không cũng phải mở ra cho học sinh thi)
       window.isScanningHistory = false;
       stSelect.options[stSelect.selectedIndex].text = originalText;
       stSelect.disabled = false;
       stSelect.style.cursor = "pointer";
+
+      // Vén bức màn: Bỏ màu xám mờ, kích hoạt hiệu ứng phát sáng cho các thẻ OT
       document
         .querySelectorAll(".level-card:not(.locked)")
         .forEach((card) => card.classList.remove("waiting-info"));
     }
   } else {
+    // Nếu học sinh đổi ý, click quay lại "-- Chọn Học Sinh --"
     window.currentPlayer = null;
     window.isScanningHistory = false;
+
+    // Giấu nút lịch sử và Bắt buộc Khóa mờ lại các thẻ OT
     if (btnHistory) btnHistory.style.display = "none";
     document
       .querySelectorAll(".level-card:not(.locked)")
@@ -178,7 +188,7 @@ window.selectStudent = async function () {
   }
 };
 
-// 2.5. Xem Lịch sử làm bài
+// Tính năng Xem Lịch sử (Đã tích hợp thuật toán Sắp xếp Kép)
 window.showHistory = async function () {
   if (!window.currentPlayer) return;
 
@@ -186,6 +196,7 @@ window.showHistory = async function () {
   const content = document.getElementById("history-content");
   const btnHistory = document.getElementById("btn-view-history");
 
+  // 🛑 CHẶN BẤM NHIỀU LẦN: Khóa nút ngay khi vừa bấm
   if (btnHistory) {
     btnHistory.disabled = true;
     btnHistory.innerHTML = "⏳ ĐANG TẢI...";
@@ -205,7 +216,12 @@ window.showHistory = async function () {
   }
 
   modal.style.display = "flex";
-  content.innerHTML = `<div style="text-align:center; padding: 20px;"><div class="cyber-spinner"></div><p style="color: #00d2d3; margin-top: 15px; font-weight: bold;">ĐANG KẾT NỐI VỚI VỆ TINH DỮ LIỆU...</p></div>`;
+
+  content.innerHTML = `
+    <div style="text-align:center; padding: 20px;">
+      <div class="cyber-spinner"></div>
+      <p style="color: #00d2d3; margin-top: 15px; font-weight: bold;">ĐANG KẾT NỐI VỚI VỆ TINH DỮ LIỆU...</p>
+    </div>`;
 
   const url = `${MASTER_API_URL}&action=getHistory&school=${encodeURIComponent(window.currentPlayer.school)}&lop=${encodeURIComponent(window.currentPlayer.lop)}&id=${encodeURIComponent(window.currentPlayer.id)}`;
 
@@ -214,36 +230,51 @@ window.showHistory = async function () {
     const result = await response.json();
 
     if (result.status === "success") {
-      let data = result.data;
+      let data = result.data; // Lấy mảng dữ liệu
+
       if (data.length === 0) {
         content.innerHTML = `<p style='text-align:center; font-size: 1.2rem; color: #aaa;'>Phi công <b class="player-name">${window.currentPlayer.fullname}</b> chưa có dữ liệu làm bài nào.</p>`;
       } else {
+        // 🌟 THUẬT TOÁN SẮP XẾP KÉP (OT -> THỜI GIAN)
         data.sort((a, b) => {
+          // Ưu tiên 1: Sắp xếp theo OT (Hỗ trợ đọc số: OT 2 sẽ đứng trước OT 10)
           let otA = String(a.ot).trim();
           let otB = String(b.ot).trim();
           let otCompare = otA.localeCompare(otB, undefined, { numeric: true });
-          if (otCompare !== 0) return otCompare;
 
+          if (otCompare !== 0) return otCompare; // Nếu khác OT thì xếp theo OT
+
+          // Ưu tiên 2: Nếu cùng một OT -> Xếp theo Thời gian (Lần làm mới nhất ngoi lên trên)
+          // (Cần hàm dịch định dạng "HH:mm:ss - DD/MM/YYYY" sang thời gian máy tính hiểu)
           const parseCustomDate = (timeStr) => {
             try {
               let parts = timeStr.split(" - ");
-              let t = parts[0].split(":");
-              let d = parts[1].split("/");
+              let t = parts[0].split(":"); // [giờ, phút, giây]
+              let d = parts[1].split("/"); // [ngày, tháng, năm]
+              // Lưu ý: Tháng trong JS tính từ 0 (0-11) nên phải trừ 1
               return new Date(d[2], d[1] - 1, d[0], t[0], t[1], t[2]).getTime();
             } catch (e) {
               return 0;
             }
           };
+
           return parseCustomDate(b.time) - parseCustomDate(a.time);
         });
+        // 🌟 (KẾT THÚC SẮP XẾP) --------------------------------
 
-        let tableHTML = `<table class="history-table"><tr><th>Thời gian nộp</th><th>OT</th><th>Điểm</th></tr>`;
+        let tableHTML = `<table class="history-table">
+          <tr><th>Thời gian nộp</th><th>OT</th><th>Điểm</th></tr>`;
+
         data.forEach((row) => {
           let scoreColor = "#00eaaf";
           if (parseInt(row.score) < 20) scoreColor = "#ff4757";
           else if (parseInt(row.score) < 35) scoreColor = "#f1c40f";
 
-          tableHTML += `<tr><td style="color: #dcdde1;">${row.time}</td><td style="color: #a29bfe; font-weight: bold;">${row.ot}</td><td><b style="color:${scoreColor}; font-size: 1.3rem;">${row.score}</b></td></tr>`;
+          tableHTML += `<tr>
+            <td style="color: #dcdde1;">${row.time}</td>
+            <td style="color: #a29bfe; font-weight: bold;">${row.ot}</td>
+            <td><b style="color:${scoreColor}; font-size: 1.3rem;">${row.score}</b></td>
+          </tr>`;
         });
         tableHTML += `</table>`;
         content.innerHTML = tableHTML;
@@ -254,6 +285,7 @@ window.showHistory = async function () {
   } catch (err) {
     content.innerHTML = `<p style="color:#ff4757; text-align:center;">📡 Không thể kết nối tới kho dữ liệu!</p>`;
   } finally {
+    // ✅ MỞ KHÓA NÚT: Khi đã load xong
     if (btnHistory) {
       btnHistory.disabled = false;
       btnHistory.innerHTML = "📜 LỊCH SỬ ĐIỂM";
@@ -263,13 +295,14 @@ window.showHistory = async function () {
   }
 };
 
-// 2.6. Gửi điểm tự động
+// 5. Logic gửi điểm tự động
 window.submitAutoScore = function () {
   if (!window.currentPlayer)
     return showCustomAlert(
       "Không tìm thấy thông tin học sinh.\nVui lòng kiểm tra lại!",
       "❌ LỖI DỮ LIỆU",
     );
+
   if (window.isScoreSaved)
     return showCustomAlert("Bạn đã lưu điểm rồi!", "⚠️ THÔNG BÁO");
 
@@ -280,6 +313,7 @@ window.submitAutoScore = function () {
 
   const otCode = window.currentLevel || "1";
   const finalScore = typeof score !== "undefined" ? score : 0;
+
   const url = `${MASTER_API_URL}&action=saveScore&school=${encodeURIComponent(window.currentPlayer.school)}&lop=${encodeURIComponent(window.currentPlayer.lop)}&id=${encodeURIComponent(window.currentPlayer.id)}&fullname=${encodeURIComponent(window.currentPlayer.fullname)}&ot=${encodeURIComponent(otCode)}&score=${encodeURIComponent(finalScore)}`;
 
   fetch(url)
@@ -290,6 +324,8 @@ window.submitAutoScore = function () {
           typeof GAME_CONFIG !== "undefined"
             ? GAME_CONFIG.game.totalQuestions
             : "?";
+
+        // Gọi bảng thông báo màu Xanh lá (true)
         showCustomAlert(
           `<span class="player-name">${window.currentPlayer.fullname}</span>: ${finalScore}/${totalQ} điểm. Xin chúc mừng!`,
           "📡 HỆ THỐNG ĐÃ GHI NHẬN",
@@ -299,6 +335,7 @@ window.submitAutoScore = function () {
         if (btnLose) btnLose.style.display = "none";
         if (btnWin) btnWin.style.display = "none";
       } else {
+        // Lỗi từ máy chủ
         showCustomAlert("Lỗi từ hệ thống: " + data.msg, "❌ TỪ CHỐI");
         if (btnLose) btnLose.innerText = "LƯU ĐIỂM";
         if (btnWin) btnWin.innerText = "LƯU ĐIỂM";
@@ -306,6 +343,7 @@ window.submitAutoScore = function () {
     })
     .catch((err) => {
       console.error("Lỗi Fetch:", err);
+      // Lỗi rớt mạng
       showCustomAlert(
         "Không thể kết nối tới Google Sheets.\nVui lòng kiểm tra đường truyền!",
         "📡 MẤT KẾT NỐI",
@@ -315,10 +353,6 @@ window.submitAutoScore = function () {
     });
 };
 
-// =====================================================================
-// PHẦN 3: QUẢN LÝ GIAO DIỆN (UI CONTROLS & MODALS)
-// =====================================================================
-
 window.triggerReload = function () {
   document.getElementById("global-loader").style.display = "flex";
   setTimeout(() => {
@@ -326,88 +360,7 @@ window.triggerReload = function () {
   }, 300);
 };
 
-function showFeedback(text, isCorrect, isTransparent = false) {
-  let fb = document.getElementById("feedback-modal");
-  fb.innerHTML = text;
-  fb.className = isCorrect ? "feedback-correct" : "feedback-wrong";
-  if (isTransparent) fb.classList.add("feedback-transparent");
-  else fb.classList.remove("feedback-transparent");
-  fb.style.display = "block";
-  setTimeout(() => (fb.style.display = "none"), 1500);
-}
-
-function showCustomAlert(msg, title = "⚠️ LƯU Ý", isSuccess = false) {
-  document.getElementById("custom-alert-msg").innerHTML = msg;
-  const titleEl = document.querySelector("#custom-alert .alert-title");
-  const boxEl = document.querySelector("#custom-alert .alert-box");
-  const btnEl = document.querySelector("#custom-alert .btn-alert");
-
-  if (titleEl) titleEl.innerText = title;
-  const mainColor = isSuccess ? "#00eaaf" : "#f39c12";
-
-  if (titleEl) titleEl.style.color = mainColor;
-  if (boxEl) {
-    boxEl.style.borderColor = mainColor;
-    boxEl.style.boxShadow = `0 0 40px ${isSuccess ? "rgba(0, 234, 175, 0.4)" : "rgba(243, 156, 18, 0.4)"}`;
-  }
-  if (btnEl) btnEl.style.background = mainColor;
-  document.getElementById("custom-alert").style.display = "flex";
-}
-
-function openZoom() {
-  let src = document.getElementById("question-image").src;
-  if (src) {
-    document.getElementById("zoomed-image").src = src;
-    document.getElementById("image-zoom-overlay").style.display = "flex";
-  }
-}
-
-function closeZoom() {
-  document.getElementById("image-zoom-overlay").style.display = "none";
-}
-
-function openHelpModal() {
-  if (isQuizOpen) return;
-  isHelpOpen = true;
-  if (isGameRunning) {
-    if (game.scene.scenes[0] && game.scene.scenes[0].physics)
-      game.scene.scenes[0].physics.pause();
-    if (spawnTimerEvent) spawnTimerEvent.paused = true;
-    if (rewardTimerEvent) rewardTimerEvent.paused = true;
-  }
-  document.getElementById("help-modal").style.display = "flex";
-}
-
-function closeHelpModal() {
-  isHelpOpen = false;
-  document.getElementById("help-modal").style.display = "none";
-  if (isGameRunning && !isGamePaused) {
-    if (game.scene.scenes[0] && game.scene.scenes[0].physics)
-      game.scene.scenes[0].physics.resume();
-    if (spawnTimerEvent && !meteorShowerActive) spawnTimerEvent.paused = false;
-    if (rewardTimerEvent) rewardTimerEvent.paused = false;
-  }
-}
-
-function togglePause() {
-  isGamePaused = !isGamePaused;
-  if (isGamePaused) {
-    game.scene.scenes[0].physics.pause();
-    if (spawnTimerEvent) spawnTimerEvent.paused = true;
-    if (rewardTimerEvent) rewardTimerEvent.paused = true;
-    document.getElementById("pause-screen").style.display = "flex";
-  } else {
-    game.scene.scenes[0].physics.resume();
-    if (spawnTimerEvent && !meteorShowerActive) spawnTimerEvent.paused = false;
-    if (rewardTimerEvent) rewardTimerEvent.paused = false;
-    document.getElementById("pause-screen").style.display = "none";
-  }
-}
-
-// =====================================================================
-// PHẦN 4: HỆ THỐNG CÂU HỎI (QUIZ ENGINE)
-// =====================================================================
-
+// ================= GIAO DIỆN IN-GAME =================
 function setupModal(item, isBoss) {
   if (cooldownTimer || currentActiveObject === item) return;
   currentActiveObject = item;
@@ -799,10 +752,13 @@ function lockAnswerUI() {
       btn.disabled = true;
       btn.style.pointerEvents = "none";
     });
+
   const matchingList = document.getElementById("matching-right-list");
   if (matchingList) matchingList.style.pointerEvents = "none";
+
   const orderingList = document.getElementById("ordering-list");
   if (orderingList) orderingList.style.pointerEvents = "none";
+
   const confirmBtn = document.getElementById("confirm-btn");
   if (confirmBtn) {
     confirmBtn.disabled = true;
@@ -837,9 +793,97 @@ function closeModal(resume = true) {
   }
 }
 
-// =====================================================================
-// PHẦN 5: KHỞI TẠO & LẮNG NGHE SỰ KIỆN TỔNG (EVENT LISTENERS)
-// =====================================================================
+function showFeedback(text, isCorrect, isTransparent = false) {
+  let fb = document.getElementById("feedback-modal");
+  fb.innerHTML = text;
+  fb.className = isCorrect ? "feedback-correct" : "feedback-wrong";
+
+  if (isTransparent) {
+    fb.classList.add("feedback-transparent");
+  } else {
+    fb.classList.remove("feedback-transparent");
+  }
+
+  fb.style.display = "block";
+  setTimeout(() => (fb.style.display = "none"), 1500);
+}
+
+// Hàm hiển thị hộp thoại xịn sò (Biết tự đổi màu theo trạng thái)
+function showCustomAlert(msg, title = "⚠️ LƯU Ý", isSuccess = false) {
+  document.getElementById("custom-alert-msg").innerHTML = msg;
+
+  const titleEl = document.querySelector("#custom-alert .alert-title");
+  const boxEl = document.querySelector("#custom-alert .alert-box");
+  const btnEl = document.querySelector("#custom-alert .btn-alert");
+
+  if (titleEl) titleEl.innerText = title;
+
+  // Đổi màu Xanh Ngọc nếu thành công, màu Cam rực nếu có lỗi/cảnh báo
+  const mainColor = isSuccess ? "#00eaaf" : "#f39c12";
+
+  if (titleEl) titleEl.style.color = mainColor;
+  if (boxEl) {
+    boxEl.style.borderColor = mainColor;
+    boxEl.style.boxShadow = `0 0 40px ${isSuccess ? "rgba(0, 234, 175, 0.4)" : "rgba(243, 156, 18, 0.4)"}`;
+  }
+  if (btnEl) btnEl.style.background = mainColor;
+
+  document.getElementById("custom-alert").style.display = "flex";
+}
+
+function openZoom() {
+  let src = document.getElementById("question-image").src;
+  if (src) {
+    document.getElementById("zoomed-image").src = src;
+    document.getElementById("image-zoom-overlay").style.display = "flex";
+  }
+}
+function closeZoom() {
+  document.getElementById("image-zoom-overlay").style.display = "none";
+}
+
+function openHelpModal() {
+  if (isQuizOpen) return;
+  isHelpOpen = true;
+
+  if (isGameRunning) {
+    if (game.scene.scenes[0] && game.scene.scenes[0].physics) {
+      game.scene.scenes[0].physics.pause();
+    }
+    if (spawnTimerEvent) spawnTimerEvent.paused = true;
+    if (rewardTimerEvent) rewardTimerEvent.paused = true;
+  }
+
+  document.getElementById("help-modal").style.display = "flex";
+}
+
+function closeHelpModal() {
+  isHelpOpen = false;
+  document.getElementById("help-modal").style.display = "none";
+
+  if (isGameRunning && !isGamePaused) {
+    if (game.scene.scenes[0] && game.scene.scenes[0].physics) {
+      game.scene.scenes[0].physics.resume();
+    }
+    if (spawnTimerEvent && !meteorShowerActive) spawnTimerEvent.paused = false;
+    if (rewardTimerEvent) rewardTimerEvent.paused = false;
+  }
+}
+
+function togglePause() {
+  isGamePaused = !isGamePaused;
+  if (isGamePaused) {
+    game.scene.scenes[0].physics.pause();
+    if (spawnTimerEvent) spawnTimerEvent.paused = true;
+    if (rewardTimerEvent) rewardTimerEvent.paused = true;
+    document.getElementById("pause-screen").style.display = "flex";
+  } else {
+    game.scene.scenes[0].physics.resume();
+    if (spawnTimerEvent && !meteorShowerActive) spawnTimerEvent.paused = false;
+    if (rewardTimerEvent) rewardTimerEvent.paused = false;
+    document.getElementById("pause-screen").style.display = "none";
+  }
+}
 
 window.addEventListener("DOMContentLoaded", async () => {
   if (typeof window.fetchLiveStudentData === "function") {
@@ -848,31 +892,35 @@ window.addEventListener("DOMContentLoaded", async () => {
     console.log("❌ LỖI NGHIÊM TRỌNG: Hàm fetchLiveStudentData chưa tồn tại!");
   }
 
-  // Khởi tạo các nút chức năng
+  // 🌟 Đã xóa các lệnh gọi intro-step-1 thừa thãi
+
+  // 1. Bật hiển thị sẵn các nút chức năng (Toàn màn hình & Hỗ trợ)
   const fsBtn = document.getElementById("fullscreen-btn");
   const helpBtn = document.getElementById("help-btn");
   if (fsBtn) fsBtn.style.display = "flex";
   if (helpBtn) helpBtn.style.display = "flex";
 
-  // Mở Help Modal tự động lúc vào game
+  // 2. Tự động mở bảng Hướng Dẫn ngay khi vừa vào trang
   setTimeout(() => {
     if (typeof openHelpModal === "function") {
       openHelpModal();
     }
   }, 200);
 
-  // Load danh sách màn chơi
   const container = document.getElementById("level-selection-container");
   if (!container) return;
 
   container.innerHTML = `
     <div class="cyber-loader-wrapper">
       <div class="cyber-loader-text">Đang tải dữ liệu câu hỏi...</div>
-      <div class="cyber-loader-track"><div class="cyber-loader-fill"></div></div>
+      <div class="cyber-loader-track">
+        <div class="cyber-loader-fill"></div>
+      </div>
     </div>
   `;
 
   const isLoaded = await loadSecretQuestions();
+
   container.innerHTML = "";
 
   if (isLoaded && Object.keys(quizSets).length > 0) {
@@ -882,17 +930,29 @@ window.addEventListener("DOMContentLoaded", async () => {
     Object.keys(quizSets).forEach((key) => {
       const set = quizSets[key];
       const card = document.createElement("div");
+
       const icon = icons[indexCount % icons.length];
       indexCount++;
 
       if (set && set.questions && set.questions.length > 0) {
         card.className = "level-card waiting-info";
-        card.innerHTML = `<div class="card-icon">${icon}</div><div class="card-title">OT ${key}</div><div class="card-info">${set.questions.length} câu hỏi</div>`;
+
+        card.innerHTML = `
+          <div class="card-icon">${icon}</div>
+          <div class="card-title">OT ${key}</div>
+          <div class="card-info">${set.questions.length} câu hỏi</div>
+        `;
 
         card.onclick = () => {
-          if (window.isScanningHistory || !window.currentPlayer) return;
+          // 🛑 BƯỚC CHẶN TUYỆT ĐỐI:
+          // Nếu đang quét lịch sử HOẶC chưa chọn tên -> Khóa hoàn toàn nút bấm (Không hiện thông báo gì cả)
+          if (window.isScanningHistory || !window.currentPlayer) {
+            return;
+          }
 
           document.getElementById("global-loader").style.display = "flex";
+
+          // Cập nhật tên lên HUD
           const nameDisplay = document.getElementById("player-name-display");
           if (nameDisplay) {
             nameDisplay.innerHTML = `<span style="color:#00eaaf; margin-right:8px;">🧑‍🚀</span> ${window.currentPlayer.fullname}`;
@@ -910,15 +970,19 @@ window.addEventListener("DOMContentLoaded", async () => {
               })
               .catch((err) => console.log("Không thể phóng to:", err));
           }
-
           setTimeout(() => {
             document.getElementById("global-loader").style.display = "none";
             startGame(key);
           }, 400);
         };
       } else {
+        // Giao diện khi thẻ bị khóa (chưa có câu hỏi)
         card.className = "level-card locked";
-        card.innerHTML = `<div class="card-icon">🔒</div><div class="card-title">PHẦN ${key}</div><div class="card-info">Chưa mở</div>`;
+        card.innerHTML = `
+          <div class="card-icon">🔒</div>
+          <div class="card-title">PHẦN ${key}</div>
+          <div class="card-info">Chưa mở</div>
+        `;
       }
       container.appendChild(card);
     });
@@ -927,27 +991,30 @@ window.addEventListener("DOMContentLoaded", async () => {
       "<p style='color: #ff4757; font-weight: bold;'>⚠️ KHÔNG THỂ LẤY ĐƯỢC DỮ LIỆU. VUI LÒNG KIỂM TRA KẾT NỐI!</p>";
   }
 
-  // Xử lý nút Fullscreen
+  // Lắng nghe sự kiện click nút Fullscreen
   if (fsBtn) {
     fsBtn.addEventListener("click", () => {
       if (!document.fullscreenElement) {
-        document.documentElement
-          .requestFullscreen()
-          .catch((err) => console.log(`Lỗi phóng to: ${err.message}`));
-        fsBtn.innerHTML = "⤡";
-        fsBtn.style.borderColor = "#ff4757";
+        // Nếu chưa full -> Bật Fullscreen
+        document.documentElement.requestFullscreen().catch((err) => {
+          console.log(`Lỗi phóng to: ${err.message}`);
+        });
+        fsBtn.innerHTML = "⤡"; // Đổi icon thành Thu nhỏ
+        fsBtn.style.borderColor = "#ff4757"; // Đổi sang màu đỏ cho ngầu
         fsBtn.style.color = "#ff4757";
       } else {
-        if (document.exitFullscreen) document.exitFullscreen();
-        fsBtn.innerHTML = "⤢";
-        fsBtn.style.borderColor = "#00eaaf";
+        // Nếu đang full -> Thoát Fullscreen
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+        fsBtn.innerHTML = "⤢"; // Trả lại icon Phóng to
+        fsBtn.style.borderColor = "#00eaaf"; // Trả lại màu xanh ngọc
         fsBtn.style.color = "#00eaaf";
       }
     });
   }
 });
 
-// Lắng nghe sự kiện bàn phím chung
 window.addEventListener("keydown", (e) => {
   if (!isGameRunning) {
     const startScreen = document.getElementById("start-screen");
@@ -969,37 +1036,41 @@ window.addEventListener("keydown", (e) => {
     )
       return;
   }
-
   if (e.key === "Escape") {
     e.preventDefault();
+
     const historyModal = document.getElementById("history-modal");
     if (historyModal && historyModal.style.display === "flex") {
       historyModal.style.display = "none";
       return;
     }
+
     const customAlert = document.getElementById("custom-alert");
+
     if (customAlert && customAlert.style.display === "flex") {
       customAlert.style.display = "none";
       return;
     }
+
     if (isQuizOpen) {
       closeModal();
       return;
     }
+
     if (isHelpOpen) {
       closeHelpModal();
       return;
     }
+
     if (document.fullscreenElement) {
-      if ("keyboard" in navigator && navigator.keyboard.unlock)
+      if ("keyboard" in navigator && navigator.keyboard.unlock) {
         navigator.keyboard.unlock();
+      }
       document.exitFullscreen();
     }
   }
-
   if (e.key.toLowerCase() === "p" && isGameRunning && !isQuizOpen)
     togglePause();
-
   if (isQuizOpen) {
     const customAlert = document.getElementById("custom-alert");
     if (customAlert && customAlert.style.display === "flex") {
@@ -1021,11 +1092,9 @@ window.addEventListener("keydown", (e) => {
         confirmBtn.click();
     }
   }
-
   if (e.key.toLowerCase() === "h" && !isQuizOpen) {
     isHelpOpen ? closeHelpModal() : openHelpModal();
   }
-
   if (e.key.toLowerCase() === "f" && e.target.tagName !== "INPUT") {
     e.preventDefault();
     const fsBtn = document.getElementById("fullscreen-btn");
@@ -1033,38 +1102,29 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
-// Lắng nghe sự kiện Resize bọc thép
 window.addEventListener("resize", () => {
   if (typeof game !== "undefined" && game.scale) {
     setTimeout(() => {
       let w = window.innerWidth;
       let h = window.innerHeight;
+
       game.scale.resize(w, h);
 
+      // Cập nhật lại cả Size lẫn Scale khi thu phóng web
       if (typeof bgSpace !== "undefined" && bgSpace) {
         bgSpace.setSize(w, h);
-        let texSource = game.textures.get(bgSpace.texture.key).getSourceImage();
-        if (texSource) {
-          let finalScale =
-            Math.max(w / texSource.width, h / texSource.height) * 1.01;
-          bgSpace.tileScaleX = finalScale;
-          bgSpace.tileScaleY = finalScale;
-        }
+        bgSpace.tileScaleY = h / bgSpace.texture.getSourceImage().height;
+        bgSpace.tileScaleX = bgSpace.tileScaleY;
       }
       if (typeof bgStars !== "undefined" && bgStars) {
         bgStars.setSize(w, h);
-        let starTex = game.textures.get(bgStars.texture.key).getSourceImage();
-        if (starTex) {
-          let starScale = Math.max(w / starTex.width, h / starTex.height);
-          bgStars.tileScaleX = starScale;
-          bgStars.tileScaleY = starScale;
-        }
+        bgStars.tileScaleY = h / bgStars.texture.getSourceImage().height;
+        bgStars.tileScaleX = bgStars.tileScaleY;
       }
     }, 1000);
   }
 });
 
-// Tự động Pause khi thu nhỏ tab
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     if (isGameRunning && !isGamePaused && !isQuizOpen && !isHelpOpen) {

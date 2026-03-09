@@ -77,6 +77,11 @@ function startGame(setId) {
     .sort(() => Math.random() - 0.5)
     .slice(0, GAME_CONFIG.game.totalQuestions);
 
+  // 🌟 DÁN THÊM ĐOẠN NÀY: Ép mỗi câu hỏi có 1 ID ảo (Thẻ căn cước)
+  playDeck.forEach((q, index) => {
+    q._uniqueKey = "key_" + Date.now() + "_" + index;
+  });
+
   document.getElementById("set-title-text").innerText =
     selectedSet.title || `KIẾN THỨC TỔNG HỢP - PHẦN ${setId}`;
   document.getElementById("set-title-display").style.display = "block";
@@ -304,6 +309,7 @@ function create() {
     null,
     this,
   );
+  this.textures.get("deep-space").setFilter(Phaser.Textures.FilterMode.LINEAR);
 
   uiShieldTimer = document.getElementById("shield-timer");
   uiBuffTimer = document.getElementById("buff-timer");
@@ -688,31 +694,31 @@ function spawnQuizItem() {
   )
     return;
 
-  let activeIDs = [];
+  // 1. Quét xem trên màn hình đang có những câu hỏi (uniqueKey) nào đang bay
+  let activeKeys = [];
   quizGroup.children.iterate((child) => {
-    if (child.active) activeIDs.push(child.getData("quizData").id);
+    if (child.active) activeKeys.push(child.getData("quizData")._uniqueKey);
   });
 
-  // 🌟 THUẬT TOÁN MỚI: TÌM CÂU HỎI THEO THỨ TỰ (KHÔNG BỐC NGẪU NHIÊN NỮA)
-  // Lấy câu hỏi đầu tiên trong bộ bài mà chưa xuất hiện trên màn hình
-  let qIndex = playDeck.findIndex((q) => !activeIDs.includes(q.id));
-  if (qIndex === -1) return; // Nếu đang kẹt thì chờ
+  // 2. Tìm câu hỏi đầu tiên trong bộ bài KHÔNG TRÙNG với các câu đang bay
+  let qIndex = playDeck.findIndex((q) => !activeKeys.includes(q._uniqueKey));
+  if (qIndex === -1) return; // Nếu tất cả câu hỏi đều đang hiển thị thì chờ
 
-  // Rút câu hỏi đó ra và nhét thẳng xuống ĐÁY bộ bài (Xếp hàng vòng tròn)
+  // 3. Rút câu đó ra và NHÉT XUỐNG ĐÁY bộ bài (Học sinh bỏ lỡ ngọc thì nó sẽ quay lại sau)
   let nextQ = playDeck.splice(qIndex, 1)[0];
   playDeck.push(nextQ);
 
   let randomX = window.innerWidth + Phaser.Math.Between(50, 200);
   let item = quizGroup.create(
     randomX,
-    Phaser.Math.Between(130, window.innerHeight - 130), // Giữ nguyên mức 130 để né HUD sát lề
+    Phaser.Math.Between(130, window.innerHeight - 130),
     "gem",
   );
 
   item
     .setScale(1.2)
     .setVelocityX(-200 * gameSpeed)
-    .setData("quizData", nextQ) // 🌟 Gán câu hỏi chuẩn xác
+    .setData("quizData", nextQ)
     .setData("isBoss", false)
     .setTint(currentEvoColor);
 }
@@ -724,6 +730,7 @@ function spawnBossItem() {
     window.innerHeight / 2,
     "boss-gem",
   );
+
   item
     .setScale(4.0)
     .setTint(0xff0000)
@@ -738,24 +745,29 @@ function spawnBossItem() {
     repeat: -1,
   });
 
-  if (playDeck.length > 1) {
-    let topCard = playDeck.shift();
-    playDeck.push(topCard);
-  }
+  // --- PHẦN SỬA LOGIC RÚT CÂU HỎI ---
 
+  // Kiểm tra nếu còn câu hỏi thì dùng .splice lấy câu đầu tiên (vị trí 0)
+  // Nếu hết thì dùng câu mặc định
   let bossQ =
     playDeck.length > 0
-      ? JSON.parse(JSON.stringify(playDeck[0]))
+      ? playDeck.splice(0, 1)[0]
       : {
           id: 999,
-          type: "single",
-          q: "BẠN ĐÃ HẾT CÂU HỎI! TIÊU DIỆT TÔI ĐI!",
+          q: "HẾT CÂU HỎI! TIÊU DIỆT TÔI ĐI!",
           options: ["OK"],
           answer: ["OK"],
+          type: "single",
         };
 
-  if (playDeck.length > 0) bossQ.q = "[BOSS] " + bossQ.q;
+  // Thêm tiền tố [BOSS] để học sinh biết đây là câu quan trọng
+  // (Không cần check length ở đây nữa vì bossQ đã được lấy ra rồi)
+  if (bossQ.id !== 999) {
+    bossQ.q = "[BOSS] " + bossQ.q;
+  }
+
   item.setData("quizData", bossQ).setData("isBoss", true);
+
   showFloatingText(
     window.innerWidth / 2,
     window.innerHeight / 2,
@@ -945,7 +957,15 @@ function openBossQuiz(player, item) {
   setupModal(item, true);
 }
 
+let questionsAnswered = 0;
 function finalizeResult(isCorrect, item, isBoss) {
+  questionsAnswered++; // Tăng mỗi khi đóng modal câu hỏi (dù đúng hay sai)
+
+  // Cập nhật thanh tiến trình dựa trên số câu đã làm thay vì số điểm
+  const progressPercent =
+    (questionsAnswered / GAME_CONFIG.game.totalQuestions) * 100;
+  document.getElementById("progress-fill").style.width = progressPercent + "%";
+
   if (isCorrect) {
     score++;
     streak++;
@@ -1001,8 +1021,11 @@ function finalizeResult(isCorrect, item, isBoss) {
     }
   }
 
-  // 🌟 1. LÙI LỆNH XÓA RA NGOÀI ĐỂ DÙ ĐÚNG HAY SAI CŨNG BỊ XÓA CÂU HỎI
-  playDeck = playDeck.filter((q) => q.id !== item.getData("quizData").id);
+  // 🌟 LỆNH XÓA VĨNH VIỄN CÂU HỎI KHỎI BỘ BÀI KHI ĐÃ CÓ ĐÁP ÁN (DÙNG ID ẢO)
+  playDeck = playDeck.filter(
+    (q) => q._uniqueKey !== item.getData("quizData")._uniqueKey,
+  );
+
   if (item && item.active) item.destroy();
 
   // 🌟 2. KIỂM TRA ĐIỀU KIỆN KẾT THÚC GAME ĐỨNG RIÊNG BIỆT DÀNH CHO MỌI TRƯỜNG HỢP
