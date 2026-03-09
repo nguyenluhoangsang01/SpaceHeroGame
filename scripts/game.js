@@ -161,11 +161,11 @@ function preload() {
   this.load.image("stars", "../assets/images/space/starfield.png");
 
   // Bối cảnh Seamless
-  this.load.image("bg-evo-1", "https://labs.phaser.io/assets/skies/nebula.jpg");
-  this.load.image("bg-evo-2", "../assets/images/space/space4.png");
+  this.load.image("bg-evo-1", "../assets/images/space/nebula.jpg");
+  this.load.image("bg-evo-2", "../assets/images/space/space4.png"); //
   this.load.image(
     "bg-evo-3",
-    "https://labs.phaser.io/assets/skies/deepblue.png",
+    "https://labs.phaser.io/assets/skies/deepblue.png", //
   );
   this.load.image("bg-evo-4", "../assets/images/space/deep-space.jpg");
   this.load.image("bg-evo-5", "../assets/images/space/darkstone.png");
