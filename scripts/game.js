@@ -945,11 +945,11 @@ function openBossQuiz(player, item) {
 }
 
 function finalizeResult(isCorrect, item, isBoss) {
+  // 1. XỬ LÝ CỘNG ĐIỂM / TRỪ ĐIỂM
   if (isCorrect) {
     score++;
     streak++;
 
-    // 🌟 Nếu chuỗi hiện tại lớn hơn kỷ lục, cập nhật kỷ lục mới!
     if (streak > maxStreak) {
       maxStreak = streak;
     }
@@ -975,8 +975,6 @@ function finalizeResult(isCorrect, item, isBoss) {
       );
     }
 
-    playDeck = playDeck.filter((q) => q.id !== item.getData("quizData").id);
-
     if (isBoss) {
       endMeteorShower();
       evolvePlayer();
@@ -989,31 +987,10 @@ function finalizeResult(isCorrect, item, isBoss) {
       if (GAME_CONFIG.game.meteorStormTriggers.includes(score))
         triggerMeteorShower();
     }
-
-    if (score >= GAME_CONFIG.game.totalQuestions) {
-      document.getElementById("win-score-display").innerText =
-        score + "/" + GAME_CONFIG.game.totalQuestions;
-      // 🌟 In kỷ lục ra màn hình Win
-      document.getElementById("win-max-streak").innerText = maxStreak;
-      document.getElementById("win-screen").style.display = "flex";
-      isGameRunning = false;
-      game.scene.scenes[0].add.particles("blue-flare").createEmitter({
-        x: { min: 0, max: window.innerWidth },
-        y: window.innerHeight,
-        speedY: { min: -400, max: -800 },
-        speedX: { min: -100, max: 100 },
-        scale: { start: 0.5, end: 0 },
-        quantity: 5,
-        lifespan: 2000,
-        tint: [0xf1c40f, 0xff4757, 0x00d2d3, 0x2ecc71],
-      });
-    }
   } else {
+    // KHI TRẢ LỜI SAI
     streak = 0;
     document.getElementById("streak").innerText = streak;
-
-    // 🌟 THÊM MỚI: XÓA VĨNH VIỄN CÂU HỎI KHỎI BỘ BÀI, MẤT CƠ HỘI LẤY ĐIỂM CÂU NÀY
-    playDeck = playDeck.filter((q) => q.id !== item.getData("quizData").id);
 
     if (isBoss) {
       showFeedback("LỖI HỆ THỐNG! BOSS QUAY LẠI! ⚠️", false);
@@ -1021,24 +998,45 @@ function finalizeResult(isCorrect, item, isBoss) {
     } else {
       showFeedback("❌ BẠN ĐÃ MẤT CƠ HỘI GHI ĐIỂM CÂU NÀY!", false, true);
     }
-
-    // KIỂM TRA XEM CÓ BỊ HẾT CÂU HỎI MÀ CHƯA ĐẠT MAX ĐIỂM KHÔNG
-    if (playDeck.length === 0 && score < GAME_CONFIG.game.totalQuestions) {
-      setTimeout(() => {
-        game.scene.scenes[0].physics.pause();
-        isGameRunning = false;
-        clearTimeout(bossSpawnTimer);
-        document.getElementById("end-score-text").innerText =
-          "HẾT CÂU HỎI! ĐIỂM CỦA BẠN";
-        document.getElementById("end-score").innerText = score;
-        let endMaxStreakEl = document.getElementById("end-max-streak");
-        if (endMaxStreakEl) endMaxStreakEl.innerText = maxStreak;
-        document.getElementById("game-over-screen").style.display = "flex";
-      }, 1500);
-    }
   }
 
-  // 🌟 Đã gộp lệnh hủy item (xóa đá quý) cho tất cả các điều kiện phía trên
+  // 🌟 2. XÓA VĨNH VIỄN CÂU HỎI NÀY KHỎI BỘ BÀI (Dù đúng hay sai cũng xóa)
+  playDeck = playDeck.filter((q) => q.id !== item.getData("quizData").id);
+
+  // 🌟 3. KIỂM TRA ĐIỀU KIỆN KẾT THÚC GAME (Đưa ra ngoài để lúc nào cũng được check)
+  if (score >= GAME_CONFIG.game.totalQuestions) {
+    // TRƯỜNG HỢP 1: ĐẠT ĐIỂM TỐI ĐA -> CHIẾN THẮNG
+    document.getElementById("win-score-display").innerText =
+      score + "/" + GAME_CONFIG.game.totalQuestions;
+    document.getElementById("win-max-streak").innerText = maxStreak;
+    document.getElementById("win-screen").style.display = "flex";
+    isGameRunning = false;
+    game.scene.scenes[0].add.particles("blue-flare").createEmitter({
+      x: { min: 0, max: window.innerWidth },
+      y: window.innerHeight,
+      speedY: { min: -400, max: -800 },
+      speedX: { min: -100, max: 100 },
+      scale: { start: 0.5, end: 0 },
+      quantity: 5,
+      lifespan: 2000,
+      tint: [0xf1c40f, 0xff4757, 0x00d2d3, 0x2ecc71],
+    });
+  } else if (playDeck.length === 0) {
+    // TRƯỜNG HỢP 2: ĐÃ RÚT HẾT SẠCH CÂU HỎI MÀ VẪN CHƯA ĐỦ ĐIỂM MAX -> THUA CUỘC
+    setTimeout(() => {
+      game.scene.scenes[0].physics.pause();
+      isGameRunning = false;
+      clearTimeout(bossSpawnTimer);
+      document.getElementById("end-score-text").innerText =
+        "HẾT CÂU HỎI! ĐIỂM CỦA BẠN";
+      document.getElementById("end-score").innerText = score;
+      let endMaxStreakEl = document.getElementById("end-max-streak");
+      if (endMaxStreakEl) endMaxStreakEl.innerText = maxStreak;
+      document.getElementById("game-over-screen").style.display = "flex";
+    }, 1500);
+  }
+
+  // 4. DỌN DẸP ITEM VÀ TIẾP TỤC CHẠY
   if (item && item.active) item.destroy();
 
   setTimeout(() => {
