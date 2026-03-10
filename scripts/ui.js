@@ -441,11 +441,18 @@ function setupModal(item, isBoss) {
   container.innerHTML = "";
 
   if (data.type === "matrix") {
+    // 🌟 1. Trộn ngẫu nhiên các Hàng (Câu hỏi)
     let shuffledRows = [...data.rows].sort(() => Math.random() - 0.5);
-    let html = `<table class="matrix-table"><tr><th></th>${data.headers.map((h) => `<th>${h}</th>`).join("")}</tr>`;
+
+    // 🌟 2. Trộn ngẫu nhiên các Cột (Tiêu đề Đúng/Sai, Có/Không...)
+    let shuffledHeaders = [...data.headers].sort(() => Math.random() - 0.5);
+
+    // 3. Render giao diện dựa trên mảng Cột đã trộn
+    let html = `<table class="matrix-table"><tr><th></th>${shuffledHeaders.map((h) => `<th>${h}</th>`).join("")}</tr>`;
     shuffledRows.forEach((row, rIdx) => {
-      html += `<tr><td>${row.text}</td>${data.headers.map((h) => `<td><input type="radio" class="matrix-radio" name="matrix-row-${rIdx}" value="${h}"></td>`).join("")}</tr>`;
+      html += `<tr><td>${row.text}</td>${shuffledHeaders.map((h) => `<td><input type="radio" class="matrix-radio" name="matrix-row-${rIdx}" value="${h}"></td>`).join("")}</tr>`;
     });
+
     container.innerHTML = html + `</table>`;
     confirmBtn.style.display = "block";
 
@@ -494,15 +501,22 @@ function setupModal(item, isBoss) {
     let colRight = document.createElement("div");
     colRight.className = "matching-col-right";
     colRight.id = "matching-right-list";
-    let rightOpts = data.pairs
+
+    // 🌟 1. TRỘN NGẪU NHIÊN CỘT TRÁI (Lấy nguyên cặp xáo trộn)
+    let shuffledPairs = [...data.pairs].sort(() => Math.random() - 0.5);
+
+    // 🌟 2. TRỘN NGẪU NHIÊN CỘT PHẢI (Lấy đáp án từ mảng đã xáo trộn ra và trộn tiếp lần 2)
+    let rightOpts = shuffledPairs
       .map((p) => p.right)
       .sort(() => Math.random() - 0.5);
 
-    data.pairs.forEach((p, i) => {
+    // 3. Render dữ liệu dựa trên mảng đã xáo trộn (shuffledPairs)
+    shuffledPairs.forEach((p, i) => {
       let leftBox = document.createElement("div");
       leftBox.className = "match-static-box";
-      leftBox.innerHTML = p.left;
+      leftBox.innerHTML = p.left; // Render cột trái ngẫu nhiên
       colLeft.appendChild(leftBox);
+
       let rightBox = document.createElement("div");
       rightBox.className = "match-drag-box";
       rightBox.setAttribute("data-value", rightOpts[i]);
@@ -523,14 +537,17 @@ function setupModal(item, isBoss) {
       let currentRightItems = Array.from(
         document.querySelectorAll("#matching-right-list .match-drag-box"),
       );
-      let isCorrect = data.pairs.every(
+
+      // 🌟 4. HỆ THỐNG CHẤM ĐIỂM (Chấm chéo dựa trên mảng cột trái đã xáo trộn)
+      let isCorrect = shuffledPairs.every(
         (p, i) => currentRightItems[i].getAttribute("data-value") === p.right,
       );
 
       if (!isCorrect) {
         lockAnswerUI();
         currentRightItems.forEach((box, i) => {
-          if (box.getAttribute("data-value") === data.pairs[i].right)
+          // Báo đỏ/xanh dựa trên mảng cột trái đã xáo trộn
+          if (box.getAttribute("data-value") === shuffledPairs[i].right)
             box.classList.add("correct-blink");
           else box.classList.add("is-wrong");
         });
