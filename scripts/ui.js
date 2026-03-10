@@ -300,12 +300,12 @@ window.showHistory = async function () {
 window.submitAutoScore = function () {
   if (!window.currentPlayer)
     return showCustomAlert(
-      "Không tìm thấy thông tin học sinh.\nVui lòng kiểm tra lại!",
+      "Không tìm thấy thông tin học sinh.\nKiểm tra lại!",
       "❌ LỖI DỮ LIỆU",
     );
 
   if (window.isScoreSaved)
-    return showCustomAlert("Bạn đã lưu điểm rồi!", "⚠️ THÔNG BÁO");
+    return showCustomAlert("Điểm đã được lưu!", "⚠️ THÔNG BÁO");
 
   const btnLose = document.getElementById("btn-save-lose");
   const btnWin = document.getElementById("btn-save-win");
@@ -346,7 +346,7 @@ window.submitAutoScore = function () {
       console.error("Lỗi Fetch:", err);
       // Lỗi rớt mạng
       showCustomAlert(
-        "Không thể kết nối tới Google Sheets.\nVui lòng kiểm tra đường truyền!",
+        "Không thể kết nối tới Google Sheets.\nKiểm tra đường truyền!",
         "📡 MẤT KẾT NỐI",
       );
       if (btnLose) btnLose.innerText = "LƯU ĐIỂM";
@@ -467,9 +467,7 @@ function setupModal(item, isBoss) {
         document.querySelectorAll(".matrix-radio:checked").length <
         shuffledRows.length
       )
-        return showCustomAlert(
-          "⚠️ Vui lòng đánh giá đầy đủ cho TẤT CẢ các hàng trong bảng!",
-        );
+        return showCustomAlert("⚠️ Chọn tất cả phát biểu!");
 
       let isCorrect = shuffledRows.every(
         (r, i) =>
@@ -490,7 +488,7 @@ function setupModal(item, isBoss) {
             if (radio.value === row.answer) cell.classList.add("correct-blink");
           });
         });
-        startWrongAnswerCountdown(item, isBoss, 4);
+        startWrongAnswerCountdown(item, isBoss, 5);
       } else {
         processResult(true, item, isBoss);
       }
@@ -554,7 +552,7 @@ function setupModal(item, isBoss) {
             box.classList.add("correct-blink");
           else box.classList.add("is-wrong");
         });
-        startWrongAnswerCountdown(item, isBoss, 4);
+        startWrongAnswerCountdown(item, isBoss, 5);
       } else processResult(true, item, isBoss);
     };
   } else if (data.type === "ordering") {
@@ -590,7 +588,7 @@ function setupModal(item, isBoss) {
             li.classList.add("correct-blink");
           else li.classList.add("is-wrong");
         });
-        startWrongAnswerCountdown(item, isBoss, 4);
+        startWrongAnswerCountdown(item, isBoss, 5);
       } else processResult(true, item, isBoss);
     };
   } else if (data.type === "hotspot") {
@@ -638,12 +636,10 @@ function setupModal(item, isBoss) {
     confirmBtn.style.display = "block";
     confirmBtn.onclick = () => {
       if (selectedHotspots.length === 0)
-        return showCustomAlert(
-          "⚠️ Vui lòng click chọn vùng trên ảnh trước khi chốt đáp án!",
-        );
+        return showCustomAlert("⚠️ Nhấn chọn vùng trên ảnh!");
       if (selectedHotspots.length < correctCount)
         return showCustomAlert(
-          `⚠️ Câu hỏi yêu cầu chọn chính xác ${correctCount} vùng. Bạn mới chọn ${selectedHotspots.length} vùng!`,
+          `⚠️ Câu hỏi yêu cầu chọn chính xác ${correctCount} vùng. Chỉ mới chọn ${selectedHotspots.length} vùng!`,
         );
 
       let isCorrect = selectedHotspots.every(
@@ -662,7 +658,7 @@ function setupModal(item, isBoss) {
               .getElementById(`hotspot-${idx}`)
               .classList.add("correct-blink");
         });
-        startWrongAnswerCountdown(item, isBoss, 4);
+        startWrongAnswerCountdown(item, isBoss, 5);
       } else processResult(true, item, isBoss);
     };
   } else {
@@ -707,12 +703,10 @@ function setupModal(item, isBoss) {
         let count = currentSelectedOptions.length;
         if (data.limit && count !== data.limit)
           return showCustomAlert(
-            `⚠️ Câu hỏi yêu cầu chọn chính xác ${data.limit} đáp án. Bạn đang chọn ${count} đáp án!`,
+            `⚠️ Câu hỏi yêu cầu chọn chính xác ${data.limit} đáp án. Đang chọn ${count} đáp án!`,
           );
         if (!data.limit && count === 0)
-          return showCustomAlert(
-            "⚠️ Vui lòng chọn ít nhất 1 đáp án trước khi chốt!",
-          );
+          return showCustomAlert("⚠️ Chọn ít nhất 1 đáp án!");
 
         processResult(
           currentSelectedOptions.length === data.answer.length &&
@@ -801,11 +795,7 @@ function closeModal(resume = true) {
   if (resume && isGameRunning) {
     game.scene.scenes[0].physics.resume();
     // 🌟 Chạy lại cả 3 Timer
-    if (
-      typeof spawnTimerEvent !== "undefined" &&
-      spawnTimerEvent &&
-      !meteorShowerActive
-    )
+    if (typeof spawnTimerEvent !== "undefined" && spawnTimerEvent)
       spawnTimerEvent.paused = false;
     if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
       quizTimerEvent.paused = false;
@@ -892,11 +882,7 @@ function closeHelpModal() {
       game.scene.scenes[0].physics.resume();
     }
     // 🌟 Chạy lại 3 Timer
-    if (
-      typeof spawnTimerEvent !== "undefined" &&
-      spawnTimerEvent &&
-      !meteorShowerActive
-    )
+    if (typeof spawnTimerEvent !== "undefined" && spawnTimerEvent)
       spawnTimerEvent.paused = false;
     if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
       quizTimerEvent.paused = false;
@@ -918,11 +904,7 @@ function togglePause() {
     document.getElementById("pause-screen").style.display = "flex";
   } else {
     game.scene.scenes[0].physics.resume();
-    if (
-      typeof spawnTimerEvent !== "undefined" &&
-      spawnTimerEvent &&
-      !meteorShowerActive
-    )
+    if (typeof spawnTimerEvent !== "undefined" && spawnTimerEvent)
       spawnTimerEvent.paused = false;
     if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
       quizTimerEvent.paused = false;
@@ -1035,7 +1017,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
   } else {
     container.innerHTML =
-      "<p style='color: #ff4757; font-weight: bold;'>⚠️ KHÔNG THỂ LẤY ĐƯỢC DỮ LIỆU. VUI LÒNG KIỂM TRA KẾT NỐI!</p>";
+      "<p style='color: #ff4757; font-weight: bold;'>⚠️ KHÔNG THỂ LẤY ĐƯỢC DỮ LIỆU. KIỂM TRA KẾT NỐI!</p>";
   }
 
   // Lắng nghe sự kiện click nút Fullscreen

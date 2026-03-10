@@ -658,7 +658,12 @@ function evolvePlayer() {
 }
 
 function spawnMeteor() {
-  if (meteorGroup.countActive(true) >= GAME_CONFIG.meteor.maxCount) return;
+  // 🌟 MỞ KHÓA GIỚI HẠN: Nếu đang mưa thiên thạch, cho phép số lượng thiên thạch trên màn hình cộng thêm 25 viên để tạo thành "Cơn bão" thực sự!
+  let currentLimit = meteorShowerActive
+    ? GAME_CONFIG.meteor.maxCount + 25
+    : GAME_CONFIG.meteor.maxCount;
+
+  if (meteorGroup.countActive(true) >= currentLimit) return;
 
   let edge = Phaser.Math.Between(0, 2);
   let startX, startY;
@@ -774,7 +779,6 @@ function spawnBossItem() {
   });
 
   // --- PHẦN SỬA LOGIC RÚT CÂU HỎI ---
-
   // Kiểm tra nếu còn câu hỏi thì dùng .splice lấy câu đầu tiên (vị trí 0)
   // Nếu hết thì dùng câu mặc định
   let bossQ =
@@ -1054,7 +1058,7 @@ function finalizeResult(isCorrect, item, isBoss) {
       showFeedback("LỖI HỆ THỐNG! BOSS QUAY LẠI! ⚠️", false);
       setTimeout(spawnBossItem, 2000);
     } else {
-      showFeedback("❌ BẠN ĐÃ MẤT CƠ HỘI GHI ĐIỂM CÂU NÀY!", false, true);
+      showFeedback("❌ MẤT CƠ HỘI GHI ĐIỂM CÂU NÀY!", false, true);
     }
   }
 
@@ -1065,7 +1069,6 @@ function finalizeResult(isCorrect, item, isBoss) {
 
   if (item && item.active) item.destroy();
 
-  // 🌟 2. KIỂM TRA ĐIỀU KIỆN KẾT THÚC GAME ĐỨNG RIÊNG BIỆT DÀNH CHO MỌI TRƯỜNG HỢP
   // 🌟 2. KIỂM TRA ĐIỀU KIỆN KẾT THÚC GAME ĐỨNG RIÊNG BIỆT DÀNH CHO MỌI TRƯỜNG HỢP
   if (score >= GAME_CONFIG.game.totalQuestions) {
     // TRƯỜNG HỢP 1: HOÀN HẢO -> CHIẾN THẮNG
@@ -1148,7 +1151,7 @@ function processResult(isCorrect, item, isBoss, meta = null) {
   ) {
     lockAnswerUI();
     applyVisualLearning(meta.questionData, meta.selected || []);
-    startWrongAnswerCountdown(item, isBoss, 4);
+    startWrongAnswerCountdown(item, isBoss, 5);
     return;
   }
   closeModal(false);
