@@ -211,10 +211,25 @@ function create() {
   this.physics.pause();
   this.physics.world.setBounds(0, 0, window.innerWidth, window.innerHeight);
 
+  // 🌟 1. TẠO DANH SÁCH VÀ BỐC THĂM NỀN NGẪU NHIÊN NGAY LÚC MỞ GAME
+  const startBgList = [
+    "space",
+    "bg-evo-1",
+    "bg-evo-2",
+    "bg-evo-3",
+    "bg-evo-4",
+    "bg-evo-5",
+  ];
+  let randomStartBg =
+    startBgList[Phaser.Math.Between(0, startBgList.length - 1)];
+
+  // 🌟 2. ÁP DỤNG CÁI NỀN VỪA BỐC THĂM ĐƯỢC
   bgSpace = this.add
-    .tileSprite(0, 0, window.innerWidth, window.innerHeight, "space")
+    .tileSprite(0, 0, window.innerWidth, window.innerHeight, randomStartBg)
     .setOrigin(0, 0);
-  let spaceImg = this.textures.get("space").getSourceImage();
+
+  // 🌟 3. LẤY KÍCH THƯỚC CỦA ĐÚNG CÁI NỀN ĐÓ ĐỂ CĂN CHỈNH TỶ LỆ
+  let spaceImg = this.textures.get(randomStartBg).getSourceImage();
   if (spaceImg) {
     let finalScale = Math.max(
       window.innerWidth / spaceImg.width,
@@ -571,6 +586,20 @@ function evolvePlayer() {
       newBgKey = "bg-evo-5";
       break;
   }
+
+  // 🌟 THUẬT TOÁN RANDOM BỐI CẢNH (Chống lặp lại nền cũ)
+  const bgList = [
+    "space",
+    "bg-evo-1",
+    "bg-evo-2",
+    "bg-evo-3",
+    "bg-evo-4",
+    "bg-evo-5",
+  ];
+  do {
+    // Bốc ngẫu nhiên 1 tên ảnh trong danh sách trên
+    newBgKey = bgList[Phaser.Math.Between(0, bgList.length - 1)];
+  } while (newBgKey === bgSpace.texture.key); // Nếu bốc trúng cái nền ĐANG HIỂN THỊ thì bắt bốc lại!
 
   const skillsRow = document.getElementById("skills-row");
   const skillsList = document.getElementById("skills-list");
