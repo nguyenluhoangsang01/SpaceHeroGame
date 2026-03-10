@@ -1,5 +1,5 @@
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbxrGHPEldEGjU-HOA68n-PHQJUWH_G48ojsajwrdalRmfzU7ffTUZ83WjSiBiQghADF/exec?key=thdd@123";
+  "https://script.google.com/macros/s/AKfycbzh8rZNHH3eMEJZmGdA7dBjJ3HF8z_rhhs9LKC64p5FAvFLp7kujYoEKfu3fsK1pEpC/exec?key=thdd@123";
 
 let quizSets = {};
 
