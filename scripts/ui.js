@@ -366,7 +366,12 @@ function setupModal(item, isBoss) {
   currentActiveObject = item;
   isQuizOpen = true;
   game.scene.scenes[0].physics.pause();
-  spawnTimerEvent.paused = true;
+  if (typeof spawnTimerEvent !== "undefined" && spawnTimerEvent)
+    spawnTimerEvent.paused = true;
+  if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
+    quizTimerEvent.paused = true;
+  if (typeof rewardTimerEvent !== "undefined" && rewardTimerEvent)
+    rewardTimerEvent.paused = true;
 
   const data = item.getData("quizData");
   const modal = document.getElementById("quiz-modal");
@@ -806,7 +811,17 @@ function closeModal(resume = true) {
   setTimeout(() => (cooldownTimer = false), 1500);
   if (resume && isGameRunning) {
     game.scene.scenes[0].physics.resume();
-    spawnTimerEvent.paused = false;
+    // 🌟 Chạy lại cả 3 Timer
+    if (
+      typeof spawnTimerEvent !== "undefined" &&
+      spawnTimerEvent &&
+      !meteorShowerActive
+    )
+      spawnTimerEvent.paused = false;
+    if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
+      quizTimerEvent.paused = false;
+    if (typeof rewardTimerEvent !== "undefined" && rewardTimerEvent)
+      rewardTimerEvent.paused = false;
   }
 }
 
@@ -867,8 +882,13 @@ function openHelpModal() {
     if (game.scene.scenes[0] && game.scene.scenes[0].physics) {
       game.scene.scenes[0].physics.pause();
     }
-    if (spawnTimerEvent) spawnTimerEvent.paused = true;
-    if (rewardTimerEvent) rewardTimerEvent.paused = true;
+    // 🌟 Khóa cả 3 Timer
+    if (typeof spawnTimerEvent !== "undefined" && spawnTimerEvent)
+      spawnTimerEvent.paused = true;
+    if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
+      quizTimerEvent.paused = true;
+    if (typeof rewardTimerEvent !== "undefined" && rewardTimerEvent)
+      rewardTimerEvent.paused = true;
   }
 
   document.getElementById("help-modal").style.display = "flex";
@@ -882,8 +902,17 @@ function closeHelpModal() {
     if (game.scene.scenes[0] && game.scene.scenes[0].physics) {
       game.scene.scenes[0].physics.resume();
     }
-    if (spawnTimerEvent && !meteorShowerActive) spawnTimerEvent.paused = false;
-    if (rewardTimerEvent) rewardTimerEvent.paused = false;
+    // 🌟 Chạy lại 3 Timer
+    if (
+      typeof spawnTimerEvent !== "undefined" &&
+      spawnTimerEvent &&
+      !meteorShowerActive
+    )
+      spawnTimerEvent.paused = false;
+    if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
+      quizTimerEvent.paused = false;
+    if (typeof rewardTimerEvent !== "undefined" && rewardTimerEvent)
+      rewardTimerEvent.paused = false;
   }
 }
 
@@ -891,13 +920,25 @@ function togglePause() {
   isGamePaused = !isGamePaused;
   if (isGamePaused) {
     game.scene.scenes[0].physics.pause();
-    if (spawnTimerEvent) spawnTimerEvent.paused = true;
-    if (rewardTimerEvent) rewardTimerEvent.paused = true;
+    if (typeof spawnTimerEvent !== "undefined" && spawnTimerEvent)
+      spawnTimerEvent.paused = true;
+    if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
+      quizTimerEvent.paused = true;
+    if (typeof rewardTimerEvent !== "undefined" && rewardTimerEvent)
+      rewardTimerEvent.paused = true;
     document.getElementById("pause-screen").style.display = "flex";
   } else {
     game.scene.scenes[0].physics.resume();
-    if (spawnTimerEvent && !meteorShowerActive) spawnTimerEvent.paused = false;
-    if (rewardTimerEvent) rewardTimerEvent.paused = false;
+    if (
+      typeof spawnTimerEvent !== "undefined" &&
+      spawnTimerEvent &&
+      !meteorShowerActive
+    )
+      spawnTimerEvent.paused = false;
+    if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
+      quizTimerEvent.paused = false;
+    if (typeof rewardTimerEvent !== "undefined" && rewardTimerEvent)
+      rewardTimerEvent.paused = false;
     document.getElementById("pause-screen").style.display = "none";
   }
 }

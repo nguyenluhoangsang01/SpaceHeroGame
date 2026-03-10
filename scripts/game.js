@@ -26,6 +26,7 @@ let isGameRunning = false,
 
 let spawnTimerEvent,
   rewardTimerEvent,
+  quizTimerEvent,
   bossSpawnTimer = null;
 let meteorShowerActive = false,
   bossAvailable = false;
@@ -304,7 +305,7 @@ function create() {
     callbackScope: this,
     loop: true,
   });
-  this.time.addEvent({
+  quizTimerEvent = this.time.addEvent({
     delay: GAME_CONFIG.items.quizSpawnDelay,
     callback: spawnQuizItem,
     callbackScope: this,
