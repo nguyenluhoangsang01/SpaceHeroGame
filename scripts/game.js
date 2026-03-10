@@ -1274,7 +1274,7 @@ function getBatteryHTML(energy) {
   }
 
   let barColor = energy >= 80 ? "#f1c40f" : "#2ecc71";
-  let scaleValue = energy / 100; // Đổi % thành hệ số scale từ 0.0 đến 1.0
+  let scaleValue = energy / 100; // Chuyển % thành tỷ lệ cho transform
 
   return `
     <div style="display: flex; align-items: center; justify-content: center;">
