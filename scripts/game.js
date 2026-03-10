@@ -353,6 +353,14 @@ function update(time, delta) {
       game.scene.scenes[0].physics.pause();
       isGameRunning = false;
       clearTimeout(bossSpawnTimer);
+
+      if (typeof spawnTimerEvent !== "undefined" && spawnTimerEvent)
+        spawnTimerEvent.paused = true;
+      if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
+        quizTimerEvent.paused = true;
+      if (typeof rewardTimerEvent !== "undefined" && rewardTimerEvent)
+        rewardTimerEvent.paused = true;
+
       document.getElementById("end-score-text").innerHTML =
         `HẾT GIỜ! ĐIỂM SỐ CỦA <span class="player-name">${window.currentPlayer.fullname}</span>`;
       document.getElementById("end-score").innerText = score;
@@ -940,6 +948,15 @@ function hitMeteor(player, meteor) {
     game.scene.scenes[0].physics.pause();
     isGameRunning = false;
     clearTimeout(bossSpawnTimer);
+
+    // 🌟 KHÓA TOÀN BỘ TIMER LẠI ĐỂ DỪNG ĐẺ VẬT PHẨM KHI CHẾT
+    if (typeof spawnTimerEvent !== "undefined" && spawnTimerEvent)
+      spawnTimerEvent.paused = true;
+    if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
+      quizTimerEvent.paused = true;
+    if (typeof rewardTimerEvent !== "undefined" && rewardTimerEvent)
+      rewardTimerEvent.paused = true;
+
     document.getElementById("end-score-text").innerHTML =
       `ĐIỂM SỐ CỦA <span class="player-name">${window.currentPlayer.fullname}</span>`;
     document.getElementById("end-score").innerText = score;
@@ -1049,8 +1066,9 @@ function finalizeResult(isCorrect, item, isBoss) {
   if (item && item.active) item.destroy();
 
   // 🌟 2. KIỂM TRA ĐIỀU KIỆN KẾT THÚC GAME ĐỨNG RIÊNG BIỆT DÀNH CHO MỌI TRƯỜNG HỢP
+  // 🌟 2. KIỂM TRA ĐIỀU KIỆN KẾT THÚC GAME ĐỨNG RIÊNG BIỆT DÀNH CHO MỌI TRƯỜNG HỢP
   if (score >= GAME_CONFIG.game.totalQuestions) {
-    // TRƯỜNG HỢP 1: HOÀN HẢO 45/45 -> CHIẾN THẮNG
+    // TRƯỜNG HỢP 1: HOÀN HẢO -> CHIẾN THẮNG
     document.getElementById("win-score-display").innerText =
       score + "/" + GAME_CONFIG.game.totalQuestions;
     let winMaxEl = document.getElementById("win-max-streak");
@@ -1058,6 +1076,15 @@ function finalizeResult(isCorrect, item, isBoss) {
 
     document.getElementById("win-screen").style.display = "flex";
     isGameRunning = false;
+
+    // 🌟 KHÓA TOÀN BỘ TIMER LẠI KHI CHIẾN THẮNG
+    if (typeof spawnTimerEvent !== "undefined" && spawnTimerEvent)
+      spawnTimerEvent.paused = true;
+    if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
+      quizTimerEvent.paused = true;
+    if (typeof rewardTimerEvent !== "undefined" && rewardTimerEvent)
+      rewardTimerEvent.paused = true;
+
     game.scene.scenes[0].add.particles("blue-flare").createEmitter({
       x: { min: 0, max: window.innerWidth },
       y: window.innerHeight,
@@ -1069,11 +1096,20 @@ function finalizeResult(isCorrect, item, isBoss) {
       tint: [0xf1c40f, 0xff4757, 0x00d2d3, 0x2ecc71],
     });
   } else if (playDeck.length === 0) {
-    // TRƯỜNG HỢP 2: ĐÃ RÚT HẾT SẠCH CÂU HỎI MÀ VẪN CHƯA ĐỦ ĐIỂM MAX (Ví dụ 40/45) -> BỊ GAME OVER
+    // TRƯỜNG HỢP 2: ĐÃ RÚT HẾT SẠCH CÂU HỎI MÀ VẪN CHƯA ĐỦ ĐIỂM MAX -> BỊ GAME OVER
     setTimeout(() => {
       game.scene.scenes[0].physics.pause();
       isGameRunning = false;
       clearTimeout(bossSpawnTimer);
+
+      // 🌟 KHÓA TOÀN BỘ TIMER LẠI KHI HẾT BÀI
+      if (typeof spawnTimerEvent !== "undefined" && spawnTimerEvent)
+        spawnTimerEvent.paused = true;
+      if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
+        quizTimerEvent.paused = true;
+      if (typeof rewardTimerEvent !== "undefined" && rewardTimerEvent)
+        rewardTimerEvent.paused = true;
+
       document.getElementById("end-score-text").innerHTML =
         `HẾT CÂU HỎI! ĐIỂM CỦA <span class="player-name">${window.currentPlayer.fullname}</span>`;
       document.getElementById("end-score").innerText = score;
@@ -1086,7 +1122,18 @@ function finalizeResult(isCorrect, item, isBoss) {
     setTimeout(() => {
       if (isGameRunning) {
         game.scene.scenes[0].physics.resume();
-        spawnTimerEvent.paused = false;
+
+        // 🌟 BẮT BUỘC: MỞ KHÓA LẠI CẢ 3 TIMER ĐỂ TIẾP TỤC ĐẺ VẬT PHẨM
+        if (
+          typeof spawnTimerEvent !== "undefined" &&
+          spawnTimerEvent &&
+          !meteorShowerActive
+        )
+          spawnTimerEvent.paused = false;
+        if (typeof quizTimerEvent !== "undefined" && quizTimerEvent)
+          quizTimerEvent.paused = false;
+        if (typeof rewardTimerEvent !== "undefined" && rewardTimerEvent)
+          rewardTimerEvent.paused = false;
       }
     }, 500);
   }
