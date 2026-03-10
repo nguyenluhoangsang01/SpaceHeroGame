@@ -157,18 +157,37 @@ function startGame(setId) {
 }
 
 function preload() {
-  this.load.image("space", "../assets/images/space/space3.png");
-  this.load.image("stars", "../assets/images/space/starfield.png");
+  // Stars
+  this.load.image(
+    "stars",
+    "../assets/images/space/Starfields/Starfield-7-1024x1024.png",
+  );
 
   // Bối cảnh Seamless
-  this.load.image("bg-evo-1", "../assets/images/space/nebula.jpg");
-  this.load.image("bg-evo-2", "../assets/images/space/space4.png"); //
+  this.load.image(
+    "space",
+    "../assets/images/space/BlueNebula/Blue-Nebula-6-1024x1024.png",
+  );
+  this.load.image(
+    "bg-evo-1",
+    "../assets/images/space/GreenNebula/Green-Nebula-6-1024x1024.png",
+  );
+  this.load.image(
+    "bg-evo-2",
+    "../assets/images/space/PurpleNebula/Purple-Nebula-6-1024x1024.png",
+  );
   this.load.image(
     "bg-evo-3",
-    "https://labs.phaser.io/assets/skies/deepblue.png", //
+    "../assets/images/space/BlueNebula/Blue-Nebula-8-1024x1024.png",
   );
-  this.load.image("bg-evo-4", "../assets/images/space/deep-space.jpg");
-  this.load.image("bg-evo-5", "../assets/images/space/darkstone.png");
+  this.load.image(
+    "bg-evo-4",
+    "../assets/images/space/GreenNebula/Green-Nebula-8-1024x1024.png",
+  );
+  this.load.image(
+    "bg-evo-5",
+    "../assets/images/space/PurpleNebula/Purple-Nebula-8-1024x1024.png",
+  );
 
   this.load.image(
     "player-ship",
