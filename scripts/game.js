@@ -1101,14 +1101,45 @@ function processResult(isCorrect, item, isBoss, meta = null) {
   ) {
     lockAnswerUI();
     applyVisualLearning(meta.questionData, meta.selected || []);
-    setTimeout(() => {
-      closeModal(false);
-      finalizeResult(false, item, isBoss);
-    }, 2000);
+    startWrongAnswerCountdown(item, isBoss, 4);
     return;
   }
   closeModal(false);
   finalizeResult(isCorrect, item, isBoss);
+}
+
+// 🌟 HÀM MỚI: BIẾN NÚT ESC THÀNH BỘ ĐẾM NGƯỢC KHI TRẢ LỜI SAI
+function startWrongAnswerCountdown(item, isBoss, duration = 4) {
+  const closeBtn = document.getElementById("close-modal-btn");
+  let timeLeft = duration;
+  isCountdownRunning = true; // Bật cờ khóa phím ESC cứng
+
+  if (closeBtn) {
+    closeBtn.innerText = `Đóng trong ${timeLeft}s`;
+    closeBtn.style.color = "#ff4757"; // Đổi sang màu đỏ cảnh báo
+    closeBtn.style.pointerEvents = "none"; // Khóa không cho bấm chuột
+  }
+
+  const countdownInterval = setInterval(() => {
+    timeLeft--;
+    if (timeLeft > 0) {
+      if (closeBtn) closeBtn.innerText = `Đóng trong ${timeLeft}s`;
+    } else {
+      clearInterval(countdownInterval);
+      isCountdownRunning = false; // Mở cờ khóa
+
+      // Khôi phục nút ESC về nguyên trạng
+      if (closeBtn) {
+        closeBtn.innerText = "[ESC]";
+        closeBtn.style.color = "";
+        closeBtn.style.pointerEvents = "auto";
+      }
+
+      // Đóng bảng và gọi hàm trừ điểm
+      closeModal(false);
+      finalizeResult(false, item, isBoss);
+    }
+  }, 1000);
 }
 
 function showFloatingText(x, y, msg, color) {

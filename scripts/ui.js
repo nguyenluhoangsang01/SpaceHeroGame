@@ -1,6 +1,7 @@
 let currentSelectedOptions = [];
 let cooldownTimer = false;
 let currentActiveObject = null;
+let isCountdownRunning = false;
 
 // ================= HỆ THỐNG DỮ LIỆU HỌC SINH TỰ ĐỘNG =================
 window.STUDENT_DATA = {};
@@ -489,10 +490,7 @@ function setupModal(item, isBoss) {
             if (radio.value === row.answer) cell.classList.add("correct-blink");
           });
         });
-        setTimeout(() => {
-          closeModal(false);
-          finalizeResult(false, item, isBoss);
-        }, 2000);
+        startWrongAnswerCountdown(item, isBoss, 4);
       } else {
         processResult(true, item, isBoss);
       }
@@ -556,10 +554,7 @@ function setupModal(item, isBoss) {
             box.classList.add("correct-blink");
           else box.classList.add("is-wrong");
         });
-        setTimeout(() => {
-          closeModal(false);
-          finalizeResult(false, item, isBoss);
-        }, 2000);
+        startWrongAnswerCountdown(item, isBoss, 4);
       } else processResult(true, item, isBoss);
     };
   } else if (data.type === "ordering") {
@@ -595,10 +590,7 @@ function setupModal(item, isBoss) {
             li.classList.add("correct-blink");
           else li.classList.add("is-wrong");
         });
-        setTimeout(() => {
-          closeModal(false);
-          finalizeResult(false, item, isBoss);
-        }, 2000);
+        startWrongAnswerCountdown(item, isBoss, 4);
       } else processResult(true, item, isBoss);
     };
   } else if (data.type === "hotspot") {
@@ -670,10 +662,7 @@ function setupModal(item, isBoss) {
               .getElementById(`hotspot-${idx}`)
               .classList.add("correct-blink");
         });
-        setTimeout(() => {
-          closeModal(false);
-          finalizeResult(false, item, isBoss);
-        }, 2000);
+        startWrongAnswerCountdown(item, isBoss, 4);
       } else processResult(true, item, isBoss);
     };
   } else {
@@ -1111,6 +1100,8 @@ window.addEventListener("keydown", (e) => {
     }
 
     if (isQuizOpen) {
+      if (isCountdownRunning) return;
+
       closeModal();
       return;
     }
