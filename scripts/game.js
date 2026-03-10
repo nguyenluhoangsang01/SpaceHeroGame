@@ -2,6 +2,8 @@
 // TRẠNG THÁI GAME
 // ==========================================
 let playDeck = [];
+let uiTimeElement = null; // Biến nhớ đồng hồ
+let lastTimeStr = ""; // Biến nhớ chuỗi thời gian cũ
 
 let score = 0,
   hp = GAME_CONFIG.player.initialHp,
@@ -235,14 +237,13 @@ function create() {
 
   jetpack = this.add.particles("blue-flare").createEmitter({
     speed: 150,
-    scale: { start: 0.5, end: 0 },
-    lifespan: 300,
+    scale: { start: 0.4, end: 0 }, // 🌟 Chỉnh nhỏ hạt lại một chút
+    lifespan: 250, // 🌟 Hạt biến mất nhanh hơn
     quantity: 1,
-    frequency: 50,
+    frequency: 100, // 🌟 (TĂNG SỐ NÀY LÊN) Từ 50 lên 100: Khoảng cách giữa các hạt thưa ra gấp đôi
     angle: { min: 160, max: 200 },
     followOffset: { x: -40, y: 0 },
   });
-
   player = this.physics.add
     .sprite(150, window.innerHeight / 2, "player-ship")
     .setCollideWorldBounds(true)
@@ -344,8 +345,16 @@ function update(time, delta) {
     timeRemaining -= delta / 1000;
     let m = Math.floor(timeRemaining / 60);
     let s = Math.floor(timeRemaining % 60);
-    document.getElementById("time-remaining").innerText =
-      (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+
+    let newTimeStr = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+
+    // 🌟 THUẬT TOÁN TỐI ƯU: Chỉ can thiệp HTML khi số giây THỰC SỰ THAY ĐỔI (Chỉ chạy 1 lần/giây thay vì 60 lần/giây)
+    if (newTimeStr !== lastTimeStr) {
+      if (!uiTimeElement)
+        uiTimeElement = document.getElementById("time-remaining");
+      if (uiTimeElement) uiTimeElement.innerText = newTimeStr;
+      lastTimeStr = newTimeStr;
+    }
 
     if (timeRemaining <= 0) {
       timeRemaining = 0;
@@ -391,11 +400,18 @@ function update(time, delta) {
       }
     }
   });
+  // 🌟 Đưa vào trạng thái ngủ đông thay vì xóa bỏ hoàn toàn (Giúp RAM không bị quá tải)
   quizGroup.children.iterate((item) => {
-    if (item && item.active && item.x < -200) item.destroy();
+    if (item && item.active && item.x < -200) {
+      quizGroup.killAndHide(item);
+      item.body.enable = false;
+    }
   });
   itemGroup.children.iterate((item) => {
-    if (item && item.active && item.x < -200) item.destroy();
+    if (item && item.active && item.x < -200) {
+      itemGroup.killAndHide(item);
+      item.body.enable = false;
+    }
   });
 }
 
