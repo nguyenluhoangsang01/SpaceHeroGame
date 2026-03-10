@@ -152,7 +152,7 @@ function startGame(setId) {
         if (game.scene.scenes[0]) {
           game.scene.scenes[0].physics.resume();
         }
-      }, 1500);
+      }, 1200);
     }
   }, 1000);
 }
