@@ -44,7 +44,7 @@ const config = {
     width: "100%",
     height: "100%",
   },
-  physics: { default: "arcade", arcade: { debug: false } },
+  physics: { default: "arcade", arcade: { debug: true } },
   render: { pixelArt: false, powerPreference: "high-performance" },
   fps: { panicMax: 120 },
   scene: { preload, create, update },
@@ -179,6 +179,9 @@ function preload() {
   this.load.image("ship-4", "../assets/images/player-ship/ship-4.png");
   this.load.image("ship-5", "../assets/images/player-ship/ship-5.png");
 
+  // Radar
+  this.load.image("radar", "../assets/images/player-ship/Radar.png");
+
   this.load.image("meteor", "../assets/images/items/asteroid1.png");
   this.load.image("gem", "../assets/images/items/gem.png");
   this.load.image("boss-gem", "../assets/images/items/diamond.png");
@@ -250,7 +253,12 @@ function create() {
     .setDrag(800)
     .setDepth(10);
 
-  player.body.setSize(500, 300, true);
+  // 🌟 Chỉnh khung va chạm cho tàu gốc (Ôm 60% chiều dài và 50% chiều rộng)
+  player.body.setSize(player.width * 0.6, player.height * 0.5, true);
+
+  // (Nếu vẫn lệch trái thì tăng lên 100, 150... Nếu lệch quá sang phải thì giảm xuống)
+  player.body.setOffset(player.body.offset.x + 80, player.body.offset.y);
+
   jetpack.startFollow(player);
 
   // 🌟 Đã tăng tỷ lệ scale của khiên để tạo padding rộng bao bọc quanh tàu
@@ -267,11 +275,13 @@ function create() {
     .setTint(0x00d2d3)
     .setAlpha(0.5)
     .setVisible(false);
+  // 🌟 KHỞI TẠO RADAR NAM CHÂM
   magnetEffect = this.add
-    .image(0, 0, "ring")
-    .setScale(2.5)
-    .setTint(0xf1c40f)
-    .setAlpha(0.5)
+    .image(0, 0, "radar")
+    .setScale(2.0) // Scale 2.0 để đường kính đạt ~512px (Bao phủ vừa vặn bán kính hút 250px)
+    .setTint(0xf1c40f) // Nhuộm radar thành màu vàng phát sáng
+    .setAlpha(0.6) // Làm mờ đi một chút để không che khuất thiên thạch
+    .setDepth(9) // Nằm ngay dưới lớp của phi thuyền (depth 10)
     .setVisible(false);
 
   meteorGroup = this.physics.add.group({
@@ -437,20 +447,30 @@ function updateBuffs(time, delta) {
     }
   }
 
+  // --- XỬ LÝ NAM CHÂM ---
   let activeRadius = hasMagnet
-    ? GAME_CONFIG.items.magnetRadius
+    ? GAME_CONFIG.items.magnetRadius // Bán kính hút to khi ăn vật phẩm
     : passiveMagnet
-      ? 180
+      ? 180 // Bán kính hút nhỏ hơn khi dùng Nội tại Cấp 2
       : 0;
 
-  // 🌟 Gộp lệnh ẩn/hiện Nam châm
-  if (hasMagnet) {
-    magnetEffect
-      .setPosition(player.x, player.y)
-      .setRotation(magnetEffect.rotation - 0.02)
-      .setScale(2.5 + Math.sin(time / 150) * 0.1)
-      .setVisible(true);
+  // 🌟 1. HIỆU ỨNG HÌNH ẢNH RADAR (Áp dụng cho cả Nam châm vật phẩm lẫn Nội tại)
+  if (activeRadius > 0) {
+    magnetEffect.setPosition(player.x, player.y);
 
+    magnetEffect.rotation += 0.015;
+
+    // 👇 Tự động co giãn vòng radar cho khớp y xì với tầm hút thực tế
+    // (Vì ảnh Radar.png của bạn là 256x256 -> Bán kính ảnh gốc là 128)
+    magnetEffect.setScale(activeRadius / 128);
+
+    magnetEffect.setVisible(true);
+  } else {
+    magnetEffect.setVisible(false);
+  }
+
+  // 🌟 2. LOGIC ĐẾM NGƯỢC THỜI GIAN (Chỉ chạy khi ăn vật phẩm Nam châm)
+  if (hasMagnet) {
     magnetTimeRemaining -= delta / 1000;
     let currentMagnetSec = Math.ceil(magnetTimeRemaining);
     if (currentMagnetSec !== lastMagnetSec) {
@@ -461,21 +481,6 @@ function updateBuffs(time, delta) {
       hasMagnet = false;
       uiBuffStatus.style.display = "none";
     }
-  } else {
-    magnetEffect.setVisible(false);
-  }
-
-  if (activeRadius > 0) {
-    itemGroup.children.iterate((item) => {
-      if (
-        item &&
-        item.active &&
-        Phaser.Math.Distance.Between(player.x, player.y, item.x, item.y) <
-          activeRadius
-      ) {
-        game.scene.scenes[0].physics.moveToObject(item, player, 600);
-      }
-    });
   }
 }
 
@@ -516,8 +521,12 @@ function evolvePlayer() {
     message = "",
     msgColor = "#ffffff",
     shortSkill = "";
-  let newScale = 0.8;
-  let newShipKey = "ship-0"; // 🌟 THÊM BIẾN NÀY
+  let newScale = 0.15;
+  let newShipKey = "ship-0";
+
+  let hitW = 0.6;
+  let hitH = 0.5;
+  let shiftX = 80;
 
   switch (evolutionLevel) {
     case 1:
@@ -525,7 +534,10 @@ function evolvePlayer() {
       message = "🚀 CẤP 1: TĂNG TỐC!";
       msgColor = "#00ffff";
       newShipKey = "ship-1";
-      newScale = 0.16; // 🌟 Tàu thon dài, nhích lên một chút cho bằng diện tích tàu 0
+      newScale = 0.16;
+      // Tàu thon dài -> Khung va chạm dài nhưng hẹp hai bên cánh
+      hitW = 0.7;
+      hitH = 0.4;
       break;
     case 2:
       color = 0xffff00;
@@ -534,7 +546,10 @@ function evolvePlayer() {
       msgColor = "#ffff00";
       shortSkill = "🧲 Nam châm tự động";
       newShipKey = "ship-2";
-      newScale = 0.14; // 🌟 Đĩa bay to tròn, hãm lại một xíu để không bị lù lù trên màn hình
+      newScale = 0.14;
+      // Tàu đĩa bay -> Khung va chạm to tròn, ôm sát viền
+      hitW = 0.7;
+      hitH = 0.7;
       break;
     case 3:
       color = 0xff9f43;
@@ -542,7 +557,10 @@ function evolvePlayer() {
       msgColor = "#ff9f43";
       shortSkill = "🦋 Né tránh siêu việt";
       newShipKey = "ship-3";
-      newScale = 0.15; // 🌟 Cánh dơi ngang ngửa với tàu gốc
+      newScale = 0.15;
+      // Cánh dơi -> Tỷ lệ trung bình
+      hitW = 0.6;
+      hitH = 0.5;
       break;
     case 4:
       color = 0x2ecc71;
@@ -553,7 +571,10 @@ function evolvePlayer() {
       msgColor = "#2ecc71";
       shortSkill = "💚 Máu tối đa +3";
       newShipKey = "ship-4";
-      newScale = 0.17; // 🌟 Bắt đầu to hẳn ra cho bọc thép
+      newScale = 0.17;
+      // Tàu bọc thép -> Khung to và vuông vức hơn
+      hitW = 0.65;
+      hitH = 0.6;
       break;
     case 5:
     default:
@@ -563,7 +584,10 @@ function evolvePlayer() {
       msgColor = "#ff4757";
       shortSkill = "🔥 Bất tử vĩnh viễn";
       newShipKey = "ship-5";
-      newScale = 0.2; // 🌟 Boss cuối, bự nhất và ngầu nhất
+      newScale = 0.2;
+      // Boss chiến hạm -> Khung bự nhất để càn quét
+      hitW = 0.7;
+      hitH = 0.6;
       break;
   }
 
@@ -624,13 +648,16 @@ function evolvePlayer() {
     .setScale({ start: 0.6 + evolutionLevel * 0.15, end: 0 });
   showFloatingText(player.x, player.y, message, msgColor);
 
-  // --- THAY ĐỔI Ở ĐÂY: Đổi hình tàu thay vì nhuộm màu ---
+  // 🌟 CẬP NHẬT TÀU VÀ KHUNG VA CHẠM
   player.setTexture(newShipKey);
   player.setScale(newScale);
   player.clearTint();
 
-  let coreSize = evolutionLevel === 3 ? 10 : 20;
-  player.body.setSize(coreSize, coreSize, true);
+  // 🌟 CẮT MAY KHUNG VA CHẠM
+  player.body.setSize(player.width * hitW, player.height * hitH, true);
+
+  // 2. Dịch chuyển viền tím cho khớp
+  player.body.setOffset(player.body.offset.x + shiftX, player.body.offset.y);
 
   // 🌟 Khi tàu to lên (newScale tăng), vòng khiên cũng tự động nhân hệ số để phình to ra theo đúng tỷ lệ Padding
   if (shieldRing1) shieldRing1.setScale(newScale * 12);
