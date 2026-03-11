@@ -161,34 +161,31 @@ function startGame(setId) {
 
 function preload() {
   // Stars
-  this.load.image(
-    "stars",
-    "../assets/images/space/Starfields/Starfield-7-1024x1024.png",
-  );
+  this.load.image("stars", "../assets/images/stars/Starfield-7-1024x1024.png");
 
   // Bối cảnh Seamless
   this.load.image(
-    "space",
+    "space-1",
     "../assets/images/space/BlueNebula/Blue-Nebula-6-1024x1024.png",
   );
   this.load.image(
-    "bg-evo-1",
+    "space-2",
     "../assets/images/space/GreenNebula/Green-Nebula-6-1024x1024.png",
   );
   this.load.image(
-    "bg-evo-2",
+    "space-3",
     "../assets/images/space/PurpleNebula/Purple-Nebula-6-1024x1024.png",
   );
   this.load.image(
-    "bg-evo-3",
+    "space-4",
     "../assets/images/space/BlueNebula/Blue-Nebula-8-1024x1024.png",
   );
   this.load.image(
-    "bg-evo-4",
+    "space-5",
     "../assets/images/space/GreenNebula/Green-Nebula-8-1024x1024.png",
   );
   this.load.image(
-    "bg-evo-5",
+    "space-6",
     "../assets/images/space/PurpleNebula/Purple-Nebula-8-1024x1024.png",
   );
 
@@ -213,12 +210,12 @@ function create() {
 
   // 🌟 1. TẠO DANH SÁCH VÀ BỐC THĂM NỀN NGẪU NHIÊN NGAY LÚC MỞ GAME
   const startBgList = [
-    "space",
-    "bg-evo-1",
-    "bg-evo-2",
-    "bg-evo-3",
-    "bg-evo-4",
-    "bg-evo-5",
+    "space-1",
+    "space-2",
+    "space-3",
+    "space-4",
+    "space-5",
+    "space-6",
   ];
   let randomStartBg =
     startBgList[Phaser.Math.Between(0, startBgList.length - 1)];
@@ -530,14 +527,12 @@ function evolvePlayer() {
     msgColor = "#ffffff",
     shortSkill = "";
   let newScale = 0.8;
-  let newBgKey = "space";
 
   switch (evolutionLevel) {
     case 1:
       color = 0x00ffff;
       message = "🚀 CẤP 1: TĂNG TỐC!";
       msgColor = "#00ffff";
-      newBgKey = "bg-evo-1";
       break;
     case 2:
       color = 0xffff00;
@@ -546,7 +541,6 @@ function evolvePlayer() {
       msgColor = "#ffff00";
       shortSkill = "🧲 Nam châm tự động";
       newScale = 1.0;
-      newBgKey = "bg-evo-2";
       break;
     case 3:
       color = 0xff9f43;
@@ -554,7 +548,6 @@ function evolvePlayer() {
       msgColor = "#ff9f43";
       shortSkill = "🦋 Né tránh siêu việt";
       newScale = 0.45;
-      newBgKey = "bg-evo-3";
       break;
     case 4:
       color = 0x2ecc71;
@@ -565,7 +558,6 @@ function evolvePlayer() {
       msgColor = "#2ecc71";
       shortSkill = "💚 Máu tối đa +3";
       newScale = 1.1;
-      newBgKey = "bg-evo-4";
       break;
     case 5:
       color = 0x9b59b6;
@@ -574,7 +566,6 @@ function evolvePlayer() {
       msgColor = "#9b59b6";
       shortSkill = "🛡️ Khiên siêu cấp 20s";
       newScale = 1.2;
-      newBgKey = "bg-evo-5";
       break;
     default:
       color = 0xff4757;
@@ -583,23 +574,22 @@ function evolvePlayer() {
       msgColor = "#ff4757";
       shortSkill = "🔥 Bất tử vĩnh viễn";
       newScale = 1.3;
-      newBgKey = "bg-evo-5";
       break;
   }
 
-  // 🌟 THUẬT TOÁN RANDOM BỐI CẢNH (Chống lặp lại nền cũ)
+  // 🌟 THUẬT TOÁN RANDOM BỐI CẢNH (Khai báo luôn biến mới tại đây)
   const bgList = [
-    "space",
-    "bg-evo-1",
-    "bg-evo-2",
-    "bg-evo-3",
-    "bg-evo-4",
-    "bg-evo-5",
+    "space-1",
+    "space-2",
+    "space-3",
+    "space-4",
+    "space-5",
+    "space-6",
   ];
+  let newBgKey;
   do {
-    // Bốc ngẫu nhiên 1 tên ảnh trong danh sách trên
     newBgKey = bgList[Phaser.Math.Between(0, bgList.length - 1)];
-  } while (newBgKey === bgSpace.texture.key); // Nếu bốc trúng cái nền ĐANG HIỂN THỊ thì bắt bốc lại!
+  } while (newBgKey === bgSpace.texture.key);
 
   const skillsRow = document.getElementById("skills-row");
   const skillsList = document.getElementById("skills-list");
