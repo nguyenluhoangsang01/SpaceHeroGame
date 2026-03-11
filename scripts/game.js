@@ -245,7 +245,7 @@ function create() {
   player = this.physics.add
     .sprite(150, window.innerHeight / 2, "ship-0")
     .setCollideWorldBounds(true)
-    .setScale(0.12) // 🌟 Thu nhỏ tàu gốc (12% kích thước gốc)
+    .setScale(0.15) // 🌟 Thu nhỏ tàu gốc (15% kích thước gốc)
     .setAngle(0)
     .setDrag(800)
     .setDepth(10);
@@ -253,15 +253,17 @@ function create() {
   player.body.setSize(500, 300, true);
   jetpack.startFollow(player);
 
+  // 🌟 Đã tăng tỷ lệ scale của khiên để tạo padding rộng bao bọc quanh tàu
   shieldRing1 = this.add
     .image(0, 0, "ring")
-    .setScale(0.8 * (GAME_CONFIG.player.scale / 1.5))
+    .setScale(1.8) // Vòng sáng trong (Đủ rộng để bao quanh thân tàu)
     .setTint(0x00ccff)
     .setAlpha(0.8)
     .setVisible(false);
+
   shieldRing2 = this.add
     .image(0, 0, "ring")
-    .setScale(1.2 * (GAME_CONFIG.player.scale / 1.5))
+    .setScale(2.3) // Vòng mờ ngoài (Rộng hơn hẳn để tạo hiệu ứng hào quang)
     .setTint(0x00d2d3)
     .setAlpha(0.5)
     .setVisible(false);
@@ -522,8 +524,8 @@ function evolvePlayer() {
       color = 0x00ffff;
       message = "🚀 CẤP 1: TĂNG TỐC!";
       msgColor = "#00ffff";
-      newShipKey = "ship-1"; // (572 x 1000)
-      newScale = 0.13; // Thon dài nên để scale nhỉnh hơn tí
+      newShipKey = "ship-1";
+      newScale = 0.16; // 🌟 Tàu thon dài, nhích lên một chút cho bằng diện tích tàu 0
       break;
     case 2:
       color = 0xffff00;
@@ -531,16 +533,16 @@ function evolvePlayer() {
       message = "🧲 CẤP 2: TỪ TRƯỜNG!";
       msgColor = "#ffff00";
       shortSkill = "🧲 Nam châm tự động";
-      newShipKey = "ship-2"; // (904 x 780)
-      newScale = 0.11; // To tròn nên scale nhỏ lại để cân đối
+      newShipKey = "ship-2";
+      newScale = 0.14; // 🌟 Đĩa bay to tròn, hãm lại một xíu để không bị lù lù trên màn hình
       break;
     case 3:
       color = 0xff9f43;
       message = "🦋 CẤP 3: LINH HOẠT!";
       msgColor = "#ff9f43";
       shortSkill = "🦋 Né tránh siêu việt";
-      newShipKey = "ship-3"; // (792 x 998)
-      newScale = 0.12;
+      newShipKey = "ship-3";
+      newScale = 0.15; // 🌟 Cánh dơi ngang ngửa với tàu gốc
       break;
     case 4:
       color = 0x2ecc71;
@@ -551,7 +553,7 @@ function evolvePlayer() {
       msgColor = "#2ecc71";
       shortSkill = "💚 Máu tối đa +3";
       newShipKey = "ship-4";
-      newScale = 0.14; // Bắt đầu to lên cho ra dáng tàu bọc thép
+      newScale = 0.17; // 🌟 Bắt đầu to hẳn ra cho bọc thép
       break;
     case 5:
     default:
@@ -561,7 +563,7 @@ function evolvePlayer() {
       msgColor = "#ff4757";
       shortSkill = "🔥 Bất tử vĩnh viễn";
       newShipKey = "ship-5";
-      newScale = 0.16; // Boss chiến hạm to nhất, oai vệ nhất
+      newScale = 0.2; // 🌟 Boss cuối, bự nhất và ngầu nhất
       break;
   }
 
@@ -630,8 +632,9 @@ function evolvePlayer() {
   let coreSize = evolutionLevel === 3 ? 10 : 20;
   player.body.setSize(coreSize, coreSize, true);
 
-  if (shieldRing1) shieldRing1.setScale(newScale * 1.0);
-  if (shieldRing2) shieldRing2.setScale(newScale * 1.5);
+  // 🌟 Khi tàu to lên (newScale tăng), vòng khiên cũng tự động nhân hệ số để phình to ra theo đúng tỷ lệ Padding
+  if (shieldRing1) shieldRing1.setScale(newScale * 12);
+  if (shieldRing2) shieldRing2.setScale(newScale * 15);
 
   currentEvoColor = color;
   quizGroup.children.iterate((item) => {
