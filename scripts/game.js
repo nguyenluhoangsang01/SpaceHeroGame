@@ -69,7 +69,7 @@ function startGame(setId) {
 
   GAME_CONFIG.game.totalQuestions = selectedSet.questions.length;
 
-  const percentages = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9];
+  const percentages = [0.15, 0.3, 0.5, 0.65, 0.85];
   GAME_CONFIG.game.meteorStormTriggers = [
     ...new Set(
       percentages.map((p) => Math.floor(p * GAME_CONFIG.game.totalQuestions)),
@@ -164,35 +164,21 @@ function preload() {
   this.load.image("stars", "../assets/images/stars/Starfield-7-1024x1024.png");
 
   // Bối cảnh Seamless
-  this.load.image(
-    "space-1",
-    "../assets/images/space/BlueNebula/Blue-Nebula-6-1024x1024.png",
-  );
-  this.load.image(
-    "space-2",
-    "../assets/images/space/GreenNebula/Green-Nebula-6-1024x1024.png",
-  );
-  this.load.image(
-    "space-3",
-    "../assets/images/space/PurpleNebula/Purple-Nebula-6-1024x1024.png",
-  );
-  this.load.image(
-    "space-4",
-    "../assets/images/space/BlueNebula/Blue-Nebula-8-1024x1024.png",
-  );
-  this.load.image(
-    "space-5",
-    "../assets/images/space/GreenNebula/Green-Nebula-8-1024x1024.png",
-  );
-  this.load.image(
-    "space-6",
-    "../assets/images/space/PurpleNebula/Purple-Nebula-8-1024x1024.png",
-  );
+  this.load.image("space-1", "../assets/images/space/Blue-Nebula-1.png");
+  this.load.image("space-2", "../assets/images/space/Blue-Nebula-2.png");
+  this.load.image("space-3", "../assets/images/space/Green-Nebula-1.png");
+  this.load.image("space-4", "../assets/images/space/Green-Nebula-2.png");
+  this.load.image("space-5", "../assets/images/space/Purple-Nebula-1.png");
+  this.load.image("space-6", "../assets/images/space/Purple-Nebula-2.png");
 
-  this.load.image(
-    "player-ship",
-    "../assets/images/character/playerShip1_blue.png",
-  );
+  // Tải bộ phi thuyền tiến hóa
+  this.load.image("ship-0", "../assets/images/player-ship/ship-0.png");
+  this.load.image("ship-1", "../assets/images/player-ship/ship-1.png");
+  this.load.image("ship-2", "../assets/images/player-ship/ship-2.png");
+  this.load.image("ship-3", "../assets/images/player-ship/ship-3.png");
+  this.load.image("ship-4", "../assets/images/player-ship/ship-4.png");
+  this.load.image("ship-5", "../assets/images/player-ship/ship-5.png");
+
   this.load.image("meteor", "../assets/images/items/asteroid1.png");
   this.load.image("gem", "../assets/images/items/gem.png");
   this.load.image("boss-gem", "../assets/images/items/diamond.png");
@@ -249,22 +235,22 @@ function create() {
 
   jetpack = this.add.particles("blue-flare").createEmitter({
     speed: 150,
-    scale: { start: 0.4, end: 0 }, // 🌟 Chỉnh nhỏ hạt lại một chút
-    lifespan: 250, // 🌟 Hạt biến mất nhanh hơn
+    scale: { start: 0.4, end: 0 },
+    lifespan: 250,
     quantity: 1,
-    frequency: 100, // 🌟 (TĂNG SỐ NÀY LÊN) Từ 50 lên 100: Khoảng cách giữa các hạt thưa ra gấp đôi
+    frequency: 100,
     angle: { min: 160, max: 200 },
     followOffset: { x: -40, y: 0 },
   });
   player = this.physics.add
-    .sprite(150, window.innerHeight / 2, "player-ship")
+    .sprite(150, window.innerHeight / 2, "ship-0")
     .setCollideWorldBounds(true)
-    .setScale(1)
-    .setAngle(90)
+    .setScale(0.12) // 🌟 Thu nhỏ tàu gốc (12% kích thước gốc)
+    .setAngle(0)
     .setDrag(800)
     .setDepth(10);
 
-  player.body.setSize(40, 20, true);
+  player.body.setSize(500, 300, true);
   jetpack.startFollow(player);
 
   shieldRing1 = this.add
@@ -512,7 +498,9 @@ function handleMovement() {
       .scale(GAME_CONFIG.player.speed);
     player.setVelocity(vec.x, vec.y);
   }
-  player.setAngle(moveY < 0 ? 75 : moveY > 0 ? 105 : 90);
+
+  // 🌟 Tàu gốc hướng phải (0 độ). Bay lên hếch mũi (-15), bay xuống chúi mũi (15)
+  player.setAngle(moveY < 0 ? -15 : moveY > 0 ? 15 : 0);
 }
 
 function evolvePlayer() {
@@ -527,12 +515,15 @@ function evolvePlayer() {
     msgColor = "#ffffff",
     shortSkill = "";
   let newScale = 0.8;
+  let newShipKey = "ship-0"; // 🌟 THÊM BIẾN NÀY
 
   switch (evolutionLevel) {
     case 1:
       color = 0x00ffff;
       message = "🚀 CẤP 1: TĂNG TỐC!";
       msgColor = "#00ffff";
+      newShipKey = "ship-1"; // (572 x 1000)
+      newScale = 0.13; // Thon dài nên để scale nhỉnh hơn tí
       break;
     case 2:
       color = 0xffff00;
@@ -540,14 +531,16 @@ function evolvePlayer() {
       message = "🧲 CẤP 2: TỪ TRƯỜNG!";
       msgColor = "#ffff00";
       shortSkill = "🧲 Nam châm tự động";
-      newScale = 1.0;
+      newShipKey = "ship-2"; // (904 x 780)
+      newScale = 0.11; // To tròn nên scale nhỏ lại để cân đối
       break;
     case 3:
       color = 0xff9f43;
       message = "🦋 CẤP 3: LINH HOẠT!";
       msgColor = "#ff9f43";
       shortSkill = "🦋 Né tránh siêu việt";
-      newScale = 0.45;
+      newShipKey = "ship-3"; // (792 x 998)
+      newScale = 0.12;
       break;
     case 4:
       color = 0x2ecc71;
@@ -557,27 +550,22 @@ function evolvePlayer() {
       message = "💚 CẤP 4: SINH MỆNH!";
       msgColor = "#2ecc71";
       shortSkill = "💚 Máu tối đa +3";
-      newScale = 1.1;
+      newShipKey = "ship-4";
+      newScale = 0.14; // Bắt đầu to lên cho ra dáng tàu bọc thép
       break;
     case 5:
-      color = 0x9b59b6;
-      activateShield(20);
-      message = "🛡️ CẤP 5: HỘ THỂ SIÊU CẤP!";
-      msgColor = "#9b59b6";
-      shortSkill = "🛡️ Khiên siêu cấp 20s";
-      newScale = 1.2;
-      break;
     default:
       color = 0xff4757;
       activateShield(9999);
       message = "🔥 CẤP CUỐI: BẤT TỬ!";
       msgColor = "#ff4757";
       shortSkill = "🔥 Bất tử vĩnh viễn";
-      newScale = 1.3;
+      newShipKey = "ship-5";
+      newScale = 0.16; // Boss chiến hạm to nhất, oai vệ nhất
       break;
   }
 
-  // 🌟 THUẬT TOÁN RANDOM BỐI CẢNH (Khai báo luôn biến mới tại đây)
+  // 🌟 THUẬT TOÁN RANDOM BỐI CẢNH
   const bgList = [
     "space-1",
     "space-2",
@@ -633,8 +621,11 @@ function evolvePlayer() {
     .setLifespan(300 + evolutionLevel * 150)
     .setScale({ start: 0.6 + evolutionLevel * 0.15, end: 0 });
   showFloatingText(player.x, player.y, message, msgColor);
-  player.setTint(color);
+
+  // --- THAY ĐỔI Ở ĐÂY: Đổi hình tàu thay vì nhuộm màu ---
+  player.setTexture(newShipKey);
   player.setScale(newScale);
+  player.clearTint();
 
   let coreSize = evolutionLevel === 3 ? 10 : 20;
   player.body.setSize(coreSize, coreSize, true);
@@ -977,7 +968,7 @@ function hitMeteor(player, meteor) {
     yoyo: true,
     repeat: 7,
     onComplete: () => {
-      player.setTint(currentEvoColor); // 🌟 Thay vì gọi lại mảng, dùng thẳng trạng thái hệ thống
+      player.clearTint();
       player.alpha = 1;
       isInvulnerable = false;
     },
