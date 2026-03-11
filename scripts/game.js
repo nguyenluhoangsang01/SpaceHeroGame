@@ -44,7 +44,7 @@ const config = {
     width: "100%",
     height: "100%",
   },
-  physics: { default: "arcade", arcade: { debug: true } },
+  physics: { default: "arcade", arcade: { debug: false } },
   render: { pixelArt: false, powerPreference: "high-performance" },
   fps: { panicMax: 120 },
   scene: { preload, create, update },
@@ -814,6 +814,14 @@ function spawnQuizItem() {
 
 function spawnBossItem() {
   bossAvailable = true;
+
+  quizGroup.children.iterate((item) => {
+    if (item && item.active) {
+      quizGroup.killAndHide(item); // Ẩn ngọc đi
+      if (item.body) item.body.enable = false; // Tắt va chạm
+    }
+  });
+
   let item = bossGroup.create(
     window.innerWidth + 100,
     window.innerHeight / 2,
