@@ -96,7 +96,16 @@ function startGame(setId) {
     const marker = document.createElement("div");
     marker.className = "boss-marker";
     marker.id = `boss-marker-${triggerScore}`;
-    marker.innerText = "☠️";
+
+    // 🌟 Dùng innerHTML để bọc đầu lâu và con số (triggerScore) vào chung
+    // Canh giữa, làm nổi bật số điểm bằng viền đen và nền mờ
+    marker.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; position: relative; top: -10px;">
+        <span style="font-size: 16px;">☠️</span>
+        <span style="font-size: 12px; font-weight: 900; color: #ff4757; text-shadow: 1px 1px 2px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; margin-top: 2px;">${triggerScore}</span>
+      </div>
+    `;
+
     marker.style.left = `${percent}%`;
     markersContainer.appendChild(marker);
   });
