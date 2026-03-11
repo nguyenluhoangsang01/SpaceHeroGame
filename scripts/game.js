@@ -1274,14 +1274,11 @@ function getBatteryHTML(energy) {
   }
 
   let barColor = energy >= 80 ? "#f1c40f" : "#2ecc71";
-  let scaleValue = energy / 100; // Chuyển % thành tỷ lệ cho transform
 
   return `
     <div style="display: flex; align-items: center; justify-content: center;">
       <div style="width: 160px; height: 50px; border: 4px solid #ffffff; border-radius: 10px; position: relative; padding: 4px; box-sizing: border-box; background: rgba(13, 27, 51, 0.85); box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-
-        <div style="width: 100%; height: 100%; background: ${barColor}; border-radius: 4px; transform-origin: left center; transform: scaleX(${scaleValue}); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); will-change: transform;"></div>
-
+        <div style="width: ${energy}%; height: 100%; background: ${barColor}; border-radius: 4px; transition: width 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 10; color: #fff; font-size: 24px; font-weight: 900; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">
           ${energy}%
         </div>
