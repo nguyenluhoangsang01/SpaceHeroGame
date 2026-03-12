@@ -278,13 +278,13 @@ function create() {
     .setTint(0x00ccff)
     .setAlpha(0.8)
     .setVisible(false);
-
   shieldRing2 = this.add
     .image(0, 0, "ring")
     .setScale(2.3) // Vòng mờ ngoài (Rộng hơn hẳn để tạo hiệu ứng hào quang)
     .setTint(0x00d2d3)
     .setAlpha(0.5)
     .setVisible(false);
+
   // 🌟 KHỞI TẠO RADAR NAM CHÂM
   magnetEffect = this.add
     .image(0, 0, "radar")
