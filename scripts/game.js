@@ -191,13 +191,14 @@ function preload() {
   // Radar
   this.load.image("radar", "../assets/images/player-ship/Radar.png");
 
+  // Items
+  this.load.image("item-heart", "../assets/images/items/heart.png");
+  this.load.image("item-magnet", "../assets/images/items/magnet.png");
   this.load.image("meteor", "../assets/images/items/asteroid1.png");
   this.load.image("gem", "../assets/images/items/gem.png");
   this.load.image("boss-gem", "../assets/images/items/diamond.png");
-  this.load.image("item-apple", "../assets/images/items/apple.png");
   this.load.image("item-shield", "../assets/images/items/blue_ball.png");
   this.load.image("item-bomb", "../assets/images/items/mine.png");
-  this.load.image("item-magnet", "../assets/images/items/diamond.png");
   this.load.image("blue-flare", "../assets/images/items/blue.png");
   this.load.image("ring", "../assets/images/items/ring.png");
 }

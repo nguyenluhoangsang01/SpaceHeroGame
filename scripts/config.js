@@ -22,7 +22,7 @@ const GAME_CONFIG = {
 };
 
 const REWARD_TABLE = [
-  { limit: 0.3, type: "hp", sprite: "item-apple", scale: 1.5, tint: 0xffffff },
+  { limit: 0.3, type: "hp", sprite: "item-heart", scale: 1.5, tint: 0xffffff },
   {
     limit: 0.6,
     type: "shield",
