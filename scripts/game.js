@@ -420,17 +420,16 @@ function update(time, delta) {
       }
     }
   });
-  // 🌟 Đưa vào trạng thái ngủ đông thay vì xóa bỏ hoàn toàn (Giúp RAM không bị quá tải)
+  // 🌟 TIÊU HỦY HOÀN TOÀN ĐỂ XÓA SẠCH HIỆU ỨNG TWEEN CHẠY NGẦM
   quizGroup.children.iterate((item) => {
     if (item && item.active && item.x < -200) {
-      quizGroup.killAndHide(item);
-      item.body.enable = false;
+      item.destroy();
     }
   });
+
   itemGroup.children.iterate((item) => {
     if (item && item.active && item.x < -200) {
-      itemGroup.killAndHide(item);
-      item.body.enable = false;
+      item.destroy();
     }
   });
 }
@@ -820,6 +819,16 @@ function spawnQuizItem() {
     .setData("quizData", nextQ)
     .setData("isBoss", false)
     .setTint(currentEvoColor);
+
+  // 🌟 MỚI: HIỆU ỨNG NHỊP THỞ CHO NGỌC CÂU HỎI
+  game.scene.scenes[0].tweens.add({
+    targets: item,
+    scale: 1.5, // Phình to từ 1.2 lên 1.5
+    duration: 800, // Nhịp thở chậm rãi, huyền bí hơn (0.8s)
+    yoyo: true,
+    repeat: -1,
+    ease: "Sine.easeInOut",
+  });
 }
 
 function spawnBossItem() {
@@ -887,16 +896,29 @@ function spawnRewardItem() {
   const def = pickByRand(Math.random(), REWARD_TABLE);
   let randomX = window.innerWidth + Phaser.Math.Between(50, 250);
 
-  itemGroup
-    .create(
-      randomX,
-      Phaser.Math.Between(100, window.innerHeight - 100),
-      def.sprite,
-    )
+  // 🌟 Đã gán thành biến 'item' để dễ gọi hiệu ứng
+  let item = itemGroup.create(
+    randomX,
+    Phaser.Math.Between(100, window.innerHeight - 100),
+    def.sprite,
+  );
+
+  item
     .setTint(def.tint)
     .setData("type", def.type)
     .setScale(def.scale)
     .setVelocityX(-350);
+
+  // 🌟 MỚI: HIỆU ỨNG "NHỊP THỞ" VÀ LẮC LƯ
+  game.scene.scenes[0].tweens.add({
+    targets: item,
+    scale: def.scale * 1.3, // Phình to thêm 30% so với gốc
+    angle: 15, // Lắc lư nghiêng 15 độ
+    duration: 600, // Thời gian 1 nhịp thở (0.6 giây)
+    yoyo: true, // Tự động thu nhỏ/quay lại vị trí cũ
+    repeat: -1, // Lặp lại vô hạn đến khi bị ăn hoặc biến mất
+    ease: "Sine.easeInOut", // Làm chuyển động mượt mà, không bị giật cục
+  });
 }
 
 function triggerMeteorShower() {
