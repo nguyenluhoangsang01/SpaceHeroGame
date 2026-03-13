@@ -213,12 +213,18 @@ body {
   right: 20px;
   cursor: pointer;
   color: #ff4757;
+  background: rgba(255, 71, 87, 0.1); /* Nền đỏ nhạt */
+  padding: 5px 15px; /* Tạo độ phình cho nút */
+  border: 1px solid #ff4757; /* Viền đỏ */
+  border-radius: 8px; /* Bo góc */
   transition: 0.2s;
   font-weight: bold;
   font-size: 1.2rem;
   z-index: 2;
 }
+
 #close-modal-btn:hover {
+  background: rgba(255, 71, 87, 0.3);
   text-shadow: 0 0 10px rgba(255, 71, 87, 0.8);
 }
 
@@ -1316,7 +1322,6 @@ body {
 /* ================== GIAO DIỆN THUA CUỘC (KIỂU MỚI) ================== */
 #game-over-screen {
   background: rgba(11, 15, 25, 0.85);
-  backdrop-filter: blur(8px); /* Làm mờ cảnh game phía sau */
 }
 
 .lose-card {
@@ -1425,7 +1430,6 @@ body {
 
 #global-loader {
   background: rgba(11, 15, 25, 0.95);
-  backdrop-filter: blur(10px);
   flex-direction: column;
   display: none;
   z-index: 9999999999999999;

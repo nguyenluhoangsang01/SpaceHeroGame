@@ -39,14 +39,21 @@ let lastShieldSec = -1,
 const config = {
   type: Phaser.AUTO,
   scale: {
-    mode: Phaser.Scale.RESIZE,
+    mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: "100%",
-    height: "100%",
+    width: 1280,
+    height: 720,
   },
   physics: { default: "arcade", arcade: { debug: false } },
-  render: { pixelArt: false, powerPreference: "high-performance" },
-  fps: { panicMax: 120 },
+  render: {
+    pixelArt: false,
+    powerPreference: "high-performance",
+    antialias: false,
+  },
+  fps: {
+    target: 30,
+    forceSetTimeOut: true,
+  },
   scene: { preload, create, update },
 };
 
@@ -194,6 +201,7 @@ function preload() {
   // Items
   this.load.image("item-heart", "../assets/images/items/heart.png");
   this.load.image("item-magnet", "../assets/images/items/magnet.png");
+
   this.load.image("meteor", "../assets/images/items/asteroid1.png");
   this.load.image("gem", "../assets/images/items/gem.png");
   this.load.image("boss-gem", "../assets/images/items/diamond.png");
@@ -251,7 +259,7 @@ function create() {
     scale: { start: 0.4, end: 0 },
     lifespan: 250,
     quantity: 1,
-    frequency: 100,
+    frequency: 200,
     angle: { min: 160, max: 200 },
     followOffset: { x: -40, y: 0 },
   });
@@ -675,13 +683,7 @@ function evolvePlayer() {
   currentEvoColor = color;
   quizGroup.children.iterate((item) => {
     if (item && item.active) {
-      game.scene.scenes[0].tweens.add({
-        targets: item,
-        scale: 1.5,
-        duration: 200,
-        yoyo: true,
-        onComplete: () => item.setTint(currentEvoColor),
-      });
+      item.setTint(currentEvoColor);
     }
   });
 
@@ -763,7 +765,8 @@ function spawnMeteor() {
   const tintColor = meteorShowerActive ? 0xff4757 : 0xffffff;
   meteor
     .setScale(scale)
-    .setCircle(meteor.width / 2.5)
+    .setSize(meteor.width * 0.8, meteor.height * 0.8) // Dùng hình vuông nhẹ hơn 30%
+    .setOffset(meteor.width * 0.1, meteor.height * 0.1) // Căn giữa khung
     .setTint(tintColor);
 
   let baseSpeed = meteorShowerActive
@@ -819,16 +822,6 @@ function spawnQuizItem() {
     .setData("quizData", nextQ)
     .setData("isBoss", false)
     .setTint(currentEvoColor);
-
-  // 🌟 MỚI: HIỆU ỨNG NHỊP THỞ CHO NGỌC CÂU HỎI
-  game.scene.scenes[0].tweens.add({
-    targets: item,
-    scale: 1.5, // Phình to từ 1.2 lên 1.5
-    duration: 800, // Nhịp thở chậm rãi, huyền bí hơn (0.8s)
-    yoyo: true,
-    repeat: -1,
-    ease: "Sine.easeInOut",
-  });
 }
 
 function spawnBossItem() {
@@ -852,14 +845,8 @@ function spawnBossItem() {
     .setTint(0xff0000)
     .setVelocityX(-100)
     .setCollideWorldBounds(true)
-    .setBounce(1);
-
-  game.scene.scenes[0].tweens.add({
-    targets: item,
-    angle: 360,
-    duration: 3000,
-    repeat: -1,
-  });
+    .setBounce(1)
+    .setAngularVelocity(120);
 
   // --- PHẦN SỬA LOGIC RÚT CÂU HỎI ---
   // Kiểm tra nếu còn câu hỏi thì dùng .splice lấy câu đầu tiên (vị trí 0)
@@ -908,17 +895,6 @@ function spawnRewardItem() {
     .setData("type", def.type)
     .setScale(def.scale)
     .setVelocityX(-350);
-
-  // 🌟 MỚI: HIỆU ỨNG "NHỊP THỞ" VÀ LẮC LƯ
-  game.scene.scenes[0].tweens.add({
-    targets: item,
-    scale: def.scale * 1.3, // Phình to thêm 30% so với gốc
-    angle: 15, // Lắc lư nghiêng 15 độ
-    duration: 600, // Thời gian 1 nhịp thở (0.6 giây)
-    yoyo: true, // Tự động thu nhỏ/quay lại vị trí cũ
-    repeat: -1, // Lặp lại vô hạn đến khi bị ăn hoặc biến mất
-    ease: "Sine.easeInOut", // Làm chuyển động mượt mà, không bị giật cục
-  });
 }
 
 function triggerMeteorShower() {
@@ -1031,17 +1007,13 @@ function hitMeteor(player, meteor) {
 
   isInvulnerable = true;
   player.setTint(0xff4757);
-  game.scene.scenes[0].tweens.add({
-    targets: player,
-    alpha: 0.2,
-    duration: 150,
-    yoyo: true,
-    repeat: 7,
-    onComplete: () => {
-      player.clearTint();
-      player.alpha = 1;
-      isInvulnerable = false;
-    },
+  player.alpha = 0.5; // Làm tàu mờ đi một nửa để biết đang bị thương
+
+  // Dùng bộ đếm giờ cực nhẹ của Phaser để tắt bất tử sau 2 giây (2000ms)
+  game.scene.scenes[0].time.delayedCall(2000, () => {
+    player.clearTint();
+    player.alpha = 1;
+    isInvulnerable = false;
   });
 
   if (hp <= 0) {
@@ -1276,7 +1248,7 @@ function startWrongAnswerCountdown(item, isBoss, duration = 4) {
 
       // Khôi phục nút ESC về nguyên trạng
       if (closeBtn) {
-        closeBtn.innerText = "[ESC]";
+        closeBtn.innerText = "[X] ĐÓNG";
         closeBtn.style.color = "";
         closeBtn.style.pointerEvents = "auto";
       }
@@ -1298,12 +1270,10 @@ function showFloatingText(x, y, msg, color) {
     })
     .setOrigin(0.5)
     .setDepth(200);
-  game.scene.scenes[0].tweens.add({
-    targets: text,
-    y: y - 150,
-    alpha: 0,
-    duration: 1500,
-    onComplete: () => text.destroy(),
+
+  // Hẹn giờ 1.5 giây sau thì tự hủy dòng chữ, bỏ qua hiệu ứng mờ dần và trôi lên
+  game.scene.scenes[0].time.delayedCall(1500, () => {
+    if (text) text.destroy();
   });
 }
 
